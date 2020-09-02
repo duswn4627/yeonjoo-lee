@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jhta.yj.mybatis.mapper.MembersMapper">
+	<!-- 회원가입 -->
+	<insert id="join" parameterType="members">
+		insert into members values(SEQ_MEMBERS_MNUM.nextval, #{mname}, 
+			#{mid}, #{mpwd}, #{email}, #{phone}, #{addr}, 
+			sysdate, 0, 1, #{birth}, #{sex})
+	</insert>
+	
+	<!-- id 중복체크 -->
+	<select id="idCheck" parameterType="String" resultType="int">
+		select count(*) from members where mid = #{mid}
+	</select>
+	
+	<!-- email 중복체크 -->
+	<select id="emailCheck" parameterType="String" resultType="int">
+		select count(*) from members where email = #{email}
+	</select>
+	
+	<sql id="search">
+		<if test="infoField != null and infoField != '' ">
+			and ${infoField} like '%'||#{infoKeyword}||'%'
+		</if>
+
+		<if test="ageKeyword1 != null and ageKeyword1 != '' 
+			and ageKeyword2 != null and ageKeyword2 != '' ">
+			<![CDATA[
+			and FLOOR((months_between(sysdate, birth))/12) <= #{ageKeyword2}
+			and FLOOR((months_between(sysdate, birth))/12) >= #{ageKeyword1}
+			]]>
+		</if>
+		
+		<if test="dateKeyword1 != null and dateKeyword1 != '' 
+			and dateKeyword2 != null and dateKeyword2 != '' ">
+			and regdate BETWEEN TO_DATE(#{dateKeyword1}, 'YYYY/MM/DD') 
+			AND TO_DATE(#{dateKeyword2}, 'YYYY/MM/DD') + 1
+		</if>
+	</sql>
+	
+	<!-- 전체 회원수 -->
+	<select id="memCount" resultType="int" parameterType="hashmap">
+		select NVL(count(*), 0) cnt
+		from members where mstatus = 1
+		<include refid="search"/>
+	</select>
+	
+	<!-- 일반회원 조회 -->
+	<select id="memList" resultType="members" parameterType="hashmap">
+		select * from 
+		(select aa.*, rownum rnum from 
+		(select mnum, mname, mid, email, phone, regdate, birth, 
+		FLOOR((months_between(sysdate, birth))/12) age
+		from members where mstatus = 1 
+		<include refid="search" /> 
+		order by mnum desc) aa)
+		<![CDATA[where rnum >= #{startRow} and rnum <= #{endRow}]]>
+	</select>
+	
+	<select id="memInfo" resultType="members" parameterType="int">
+		select mnum, mname, mid, email, phone, addr, 
+		regdate, grade, mstatus, birth, FLOOR((months_between(sysdate, birth))/12) age, sex 
+		from members where mstatus = 1 and mnum = #{mnum}
+	</select>
+
+	<!-- 전체 탈퇴회원수 -->
+	<select id="ghostCount" resultType="int" parameterType="hashmap">
+		select NVL(count(*), 0) cnt
+		from members where mstatus = 0
+		<include refid="search"/>
+	</select>
+	
+	<!-- 탈퇴회원 조회 -->
+	<select id="ghostList" resultType="members" parameterType="hashmap">
+		select * from 
+		(select aa.*, rownum rnum from 
+		(select mnum, mname, mid, email, phone, regdate, birth, 
+		FLOOR((months_between(sysdate, birth))/12) age
+		from members where mstatus = 0 
+		<include refid="search" /> 
+		order by mnum desc) aa)
+		<![CDATA[where rnum >= #{startRow} and rnum <= #{endRow}]]>
+	</select>
+	
+	<select id="ghostInfo" resultType="members" parameterType="int">
+		select mnum, mname, mid, email, phone, addr, 
+		regdate, grade, mstatus, birth, FLOOR((months_between(sysdate, birth))/12) age, sex 
+		from members where mstatus = 0 and mnum = #{mnum}
+	</select>
+	
+	<!-- 엑셀 리스트 -->
+	<select id="excelMemList" resultType="members">
+		select aa.* from 
+		(select * from members where mstatus = 1
+		order by mnum desc) aa
+	</select>
+	
+	<select id="excelGhostList" resultType="members">
+		select aa.* from 
+		(select * from members where mstatus = 0
+		order by mnum desc) aa
+	</select>
+</mapper>

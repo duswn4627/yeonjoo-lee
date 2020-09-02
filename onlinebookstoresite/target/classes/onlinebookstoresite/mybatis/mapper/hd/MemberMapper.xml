@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mybatis.mapper.MemberMapper">
+	<!-- 로그인페이지에서 로그인사용시 사용하는 SELECT문.  -->
+	<select id="memberCheck" parameterType="hashmap" resultType="com.jhta.finalproject.hd.vo.LoginCheckVo">
+		select members.mnum,mid,NVL(obs.snum,0)snum,mstatus from 
+		(select * from members where mid=#{id} and mpwd=#{pwd}) members,(select * from obseller )obs
+		where members.mnum=obs.mnum(+)
+	</select>
+	
+	<!-- 탈퇴시 조건체크하는 mybatis sql문 시작. -->
+	<select id="ordercheck" parameterType="int" resultType="int">
+		select NVL(count(*),0) from bpayment where mnum=#{mnum} and bstatus in(0,1)
+	</select>
+	<select id="depositapplycheck" parameterType="int" resultType="int">
+		select NVL(count(*),0) from deposit where mnum=#{mnum} and dereason=4
+	</select>
+	<select id="depositcheck" parameterType="int" resultType="int">
+		select dtran from deposit where mnum=#{mnum}
+	</select>
+	<select id="obsellercheck" parameterType="int" resultType="int">
+		select NVL(MAX(snum),0) snum from obseller where mnum=#{mnum}
+	</select>
+	<select id="obcheck" parameterType="int" resultType="int">
+		select NVL(count(*),0) from oldbooks where snum=#{snum} and obsalestatus in(0,1)
+	</select>
+	<!-- 탈퇴시 조건체크하는 mybatis sql문 끝. -->
+	
+	<!-- 탈퇴처리 sql문 -->
+	<update id="leavemember" parameterType="int">
+		update members set mstatus=0 where mnum=#{mnum}
+	</update>
+	
+	<!-- 회원정보조회 -->
+	<select id="memberinfo" parameterType="int" resultType="memberinfo">
+		select * from members where mnum=#{mnum}
+	</select>
+	
+	<!-- 정보수정 -->
+	<update id="changepwd" parameterType="hashmap">
+		update members set mpwd=#{mpwd} where mnum=#{mnum}
+	</update>
+	
+	<update id="changephone" parameterType="hashmap">
+		update members set phone=#{phone} where mnum=#{mnum}
+	</update>
+	
+	<update id="changeEmail" parameterType="hashmap">
+		update members set email=#{email} where mnum=#{mnum}
+	</update>
+	
+	<update id="changeaddr" parameterType="hashmap">
+		update members set addr=#{addr} where mnum=#{mnum}
+	</update>
+</mapper>
+

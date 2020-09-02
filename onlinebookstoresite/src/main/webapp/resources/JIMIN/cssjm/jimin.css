@@ -1,0 +1,140 @@
+*{
+	font-family: 'IBMPlexSansKR-Text'; 
+	src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-07@1.0/IBMPlexSansKR-Text.woff') format('woff'); 
+	font-weight: normal; 
+	font-style: normal; 
+}
+
+
+
+
+#bcate{
+	width:400px;
+	position: relative;
+	margin-left: 10px;
+	display: inline-block;
+}
+#search{
+	width:280px;
+	position: relative;
+	float:right;
+	margin-right: 415px;
+	display: inline-block;
+	
+}
+#main{
+	position: relative;
+	margin-left: 640px;
+	display: inline-block;
+}
+#listwrap{
+	width:1100px;
+	height:200px;
+	display: inline-block;
+	margin-left:1px;
+	
+}
+#image{
+	width:150px;
+	height:80px;
+	display: inline-block;
+	margin-left: 1px;
+}
+#thumbnail{
+	width:150px;
+	height:170px;
+		display: inline-block;
+	margin-left: 1px;	
+}
+
+#detail{
+	width:400px;
+	display: inline-block;
+	margin-left: 1px;
+}
+.title{
+	width: 400px;
+}
+.pub_info{
+	width: 400px;
+}
+.price{
+	width: 400px;
+}
+.review_score{
+	width: 400px;
+}
+.status{
+	width: 400px;
+}
+
+li{
+	list-style-type: none;
+}
+#buycartbtn{
+	width:200px;
+	display: inline-block;
+	margin-right: 1px;
+}
+a:link {text-decoration: none; color: white;}
+a:visited {text-decoration: none; color: white;}
+
+
+/* 책 상세정보 */
+
+#detailallwrap{
+	width:1200px;
+}
+#detailupper{
+	width:1200px;
+	display: inline-block;
+}
+
+#detailinfo{
+	width:900px;
+	display: inline-block;
+}
+
+#detailbook_img{
+	width:200px;
+	height: 250px;
+	float:left;
+	position: relative;
+	
+}
+#detailbookNameTitle{
+	width:550px;
+	margin-left:30px;
+	float:left;
+	top: 50px;
+}
+#detailwriter{
+	width:550px;
+	margin-left:30px;
+	float:left;
+	border-bottom: 1px solid #dcdcdc;
+	padding-bottom: 11px;
+}
+#detailprice{
+	width:550px;
+	margin-left:30px;
+	float:left;
+	border-bottom: 1px solid #dcdcdc;
+	padding-bottom: 11px;
+}
+#detailbtn{
+	width:200px;
+	display: inline-block;
+	float: right;
+	margin-right: 65px;
+	margin-top: 50px;
+	text-align: center;
+}
+#detailcontent{
+	width:900px;
+	height:100px;
+	margin-left:80px;
+	float:left;
+	padding-top: 11px;
+	text-align: center;
+}

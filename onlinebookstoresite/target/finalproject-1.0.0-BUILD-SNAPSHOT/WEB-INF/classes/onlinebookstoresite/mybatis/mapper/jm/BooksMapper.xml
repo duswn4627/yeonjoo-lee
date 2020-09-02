@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jhta.mybatis.mapper.BooksMapper">
+
+	<sql id="search">
+		<if test="field!=null and field!=''">
+			where ${field} like '%'||#{keyword}||'%'
+		</if>
+	</sql>
+	<!-- 전체글의 갯수 구하기 -->
+	<select id="count" resultType="int" parameterType="hashmap">
+				<!-- NVL(count(*),0) -> null인경우 0으로 나온다~ -->
+		select NVL(count(*),0) cnt from books
+		<!-- 위에 간략하게 지정한 sql구문 (search)을 불러넣음  -->
+		<include refid="search"/>
+	</select>
+	<select id="list" parameterType="hashmap" resultType="books">
+	select * from
+	(
+		select aa.*,rownum rnum from
+		(
+			select * from books
+			<!-- 위에 간략하게 지정한 sql구문 (search)을 불러넣음  -->
+			<include refid="search"/>
+			 order by bnum desc
+		)aa
+	)
+		<!-- CDATA - '<','>' 같은 특수기호문자들을 멋대로 해석하지(변환하지) 않고 그대로 쓰게 하는거임  -->
+		<![CDATA[ where rnum>=#{startRow} and rnum<=#{endRow} ]]>
+	</select>
+
+<!-- 	조회수순위별목록 -->
+	<select id="bestlist" parameterType="hashmap" resultType="books">
+	select * from
+	(
+		select aa.*,rownum rnum from
+		(
+			select * from books
+			<!-- 위에 간략하게 지정한 sql구문 (search)을 불러넣음  -->
+			<include refid="search"/>
+			 order by bhit desc
+		)aa
+	)
+		<!-- CDATA - '<','>' 같은 특수기호문자들을 멋대로 해석하지(변환하지) 않고 그대로 쓰게 하는거임  -->
+		<![CDATA[ where rnum>=#{startRow} and rnum<=#{endRow} ]]>
+	</select>
+	
+	
+	<select id="bcatelist" resultType="bigcate">
+		select * from bigcategory order by bcatenum asc
+	</select>
+	
+	<select id="scatelist" parameterType="int" resultType="smallcate">
+		select * from smallcategory where bcatenum=#{bcatenum} order by scatenum asc
+	</select>
+	
+	
+	<select id="bbooklist" parameterType="int" resultType="books">
+		
+		select * from books where scatenum in (
+                select scatenum from smallcategory where bcatenum = #{bcatenum}
+		)order by bnum asc
+		
+	</select>
+	
+	<select id="sbooklist" parameterType="int" resultType="books">
+		select * from books where scatenum=#{scatenum} order by bnum asc
+	</select>
+	
+<!-- 	카테고리검색 -->
+	<select id="sbooklist1" parameterType="hashmap" resultType="books"> 
+		
+<!-- 		select * from books where scatenum = #{scatenum} and btitle=#{keyword} -->
+<!-- 		order by bnum asc -->
+	select * from
+	(
+		select aa.*,rownum rnum from
+		(
+			select * from books where scatenum like '%'||#{scatenum}||'%' and btitle like '%'||#{keyword}||'%'
+			order by bnum asc
+		)aa
+	)
+	<![CDATA[ where rnum>=#{startRow} and rnum<=#{endRow} ]]>
+	</select>
+	
+	<select id="detail" parameterType="int" resultType="books">
+		select * from books where bnum=#{bnum}
+	</select>	
+	<!-- 조회수 증가하기 -->
+	<update id="hit" parameterType="int">
+		update books set bhit=bhit+1 where bnum=#{bnum}
+	</update>
+	<!-- 다음글  -->
+	<select id="next" parameterType="int" resultType="books">
+	    select * from(
+			select * from books where bnum>#{bnum} 
+		    order by bnum asc
+	    )where rownum=1
+	</select>
+	<!-- 이전긁 -->
+	<select id="prev" parameterType="int" resultType="books">
+		select * from(
+		<![CDATA[ select * from books where bnum<#{bnum} ]]>
+		order by bnum desc
+		)where rownum=1
+	</select>
+	<select id="asc" parameterType="int" resultType="books">
+	    select *from(
+	    	select aa.*,rownum rnum from(
+    			select * from books order by bnum desc
+   			)aa 
+    	<![CDATA[)where rnum<=5;]]>
+	</select>
+	
+	
+</mapper>

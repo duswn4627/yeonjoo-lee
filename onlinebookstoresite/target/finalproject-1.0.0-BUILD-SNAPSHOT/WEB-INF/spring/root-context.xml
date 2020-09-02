@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+		
+	<bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
+		<property name="driverClassName" value="oracle.jdbc.OracleDriver"/>
+		<property name="url" value="jdbc:oracle:thin:@192.168.0.3:1521:xe"/>
+		<property name="username" value="gobook"/>
+		<property name="password" value="gobook1234"/>
+	</bean>
+	<bean id="sqlSessionFactoryBean" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"/>
+		<!-- mybatis-config.xml에 설정파일이 있어서 -->
+		<property name="configLocation" 
+		value="classpath:com/jhta/mybatis/config/mybatis-config.xml"/>
+	</bean>
+	<bean id="SqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg index="0" ref="sqlSessionFactoryBean"/>
+	</bean>
+	<context:component-scan base-package="com.jhta.finalproject">
+		<context:exclude-filter type="annotation" 
+		expression="org.springframework.stereotype.Controller"/>
+	</context:component-scan>
+	<!-- 지호주석:트랜잭션  처리를 위한 매니저 설정-->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+	<!-- 지호주석:인증메일 발송하기 위한 설정 
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="host" value="smtp.gmail.com"/>
+		<property name="port" value="587"/>
+		<property name="username" value="id@gmail.com"/>
+		<property name="password" value="password"/>
+		<property name="javaMailProperties">
+			<props>
+				<prop key="mail.smtp.auth">true</prop>
+				<prop key="mail.smtp.starttls.enable">true</prop>
+			</props>
+		</property>
+	</bean>-->
+	<!-- 지호주석: @트랜잭션 어노테이션을 scan하기 위해 설정 -->
+	<tx:annotation-driven/>
+
+</beans>

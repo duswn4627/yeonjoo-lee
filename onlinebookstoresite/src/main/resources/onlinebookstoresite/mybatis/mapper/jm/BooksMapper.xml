@@ -1,0 +1,754 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jhta.mybatis.mapper.BooksMapper">
+
+	<sql id="search">
+		<if test="field!=null and field!=''">
+			where ${field} like '%'||#{keyword}||'%'
+		</if>
+	</sql>
+
+<!-- 	<select id="count" resultType="int" parameterType="hashmap"> -->
+
+<!-- 		select NVL(count(*),0) cnt from books -->
+  
+<!-- 		<include refid="search"/> -->
+<!-- 	</select> -->
+
+	<select id="count1" resultType="int" parameterType="hashmap">
+
+		select NVL(count(*),0) from(
+		
+				select * from (
+					select aa.* from
+					(
+						select b.*,i.imgsavefilename from books b,img i,bookreview r
+		                 where b.bnum = i.bnum and b.bnum = r.bnum(+) and i.thumbnail=1 and btype=1
+		                 <if test="field!=null and field!=''">
+							and ${field} like '%'||#{keyword}||'%'
+						 </if>
+					)aa
+			)
+		)
+	</select>
+
+	
+<!-- 	<select id="count" resultType="int" parameterType="hashmap"> -->
+<!-- 				NVL(count(*),0) -> null인경우 0으로 나온다~ -->
+<!-- 		select NVL(count(*),0) cnt from books b,img i -->
+<!--                  where b.bnum = i.bnum and i.thumbnail=1   -->
+<!--                  <if test="field!=null and field!=''"> -->
+<!-- 					and ${field} like '%'||#{keyword}||'%'  -->
+<!-- 				 </if> -->
+<!-- 	</select> -->
+	
+	
+	<select id="list" parameterType="hashmap" resultType="book">
+	select * from
+	(
+		select aa.*,rownum rnum from
+		(
+			select * from books
+			<!-- 위에 간략하게 지정한 sql구문 (search)을 불러넣음  -->
+			<include refid="search"/>
+			 order by bnum asc
+		)aa
+	)
+		<!-- CDATA - '<','>' 같은 특수기호문자들을 멋대로 해석하지(변환하지) 않고 그대로 쓰게 하는거임  -->
+		<![CDATA[ where rnum>=#{startRow} and rnum<=#{endRow} ]]>
+	</select>
+
+	<select id="bcatelist" resultType="bigcate">
+		select * from bigcategory order by bcatenum asc
+	</select>
+<!-- 	검색창 	-->
+
+	<select id="scatelist" parameterType="int" resultType="smallcate">
+		select * from smallcategory where bcatenum=#{bcatenum} order by scatenum asc
+	</select>
+	
+	<select id="getsCatename" parameterType="int" resultType="String">
+		select scataname from smallcategory where scatenum =#{scatenum}
+	</select>
+	<select id="getbCatename" parameterType="int" resultType="String">
+		select bcataname from bigcategory where bcatenum =#{bcatenum}
+	</select>
+	
+<!-- /////////////// -->
+	
+	<select id="bbooklist" parameterType="int" resultType="book">
+		
+		select * from books where scatenum in (
+                select scatenum from smallcategory where bcatenum = #{bcatenum}
+		)order by bnum asc
+		
+	</select>
+	
+	<select id="sbooklist" parameterType="int" resultType="book">
+		select * from books where scatenum=#{scatenum} order by bnum asc
+	</select>
+	
+<!-- //////////////카테고리검색/////////////////// -->
+<!-- 	<select id="sbooklist1" parameterType="hashmap" resultType="books">  -->
+		
+<!-- 	select * from -->
+<!-- 	( -->
+<!-- 		select aa.*,rownum rnum from -->
+<!-- 		( -->
+<!-- 			select * from books where -->
+<!-- 			scatenum like '%'||#{scatenum}||'%' and btitle like '%'||#{keyword}||'%' -->
+<!-- 			order by bnum asc -->
+<!-- 		)aa -->
+<!-- 	) -->
+<!-- 	<![CDATA[ where rnum>=#{startRow} and rnum<=#{endRow} ]]> -->
+<!-- 	</select> -->
+	
+	<select id="sbooklist1" parameterType="hashmap" resultType="alllist">
+	
+		select * from (
+			select aa.*,rownum rnum from
+			(
+				select b.*,i.imgsavefilename from books b,img i
+                 where b.scatenum = #{scatenum} and b.btitle like '%'||#{keyword}||'%' and b.bnum = i.bnum(+) and i.thumbnail=1 and btype=1 
+				 order by b.bnum asc
+			)aa
+		)
+		<![CDATA[ where rnum>=#{startRow} and rnum<=#{endRow} ]]>
+
+	</select>
+	
+		
+<!-- 	<select id="allbooklist" parameterType="hashmap" resultType="alllist"> -->
+	
+<!-- 		select * from ( -->
+<!-- 			select aa.*,rownum rnum from -->
+<!-- 			( -->
+<!-- 				select b.*,i.imgsavefilename from books b,img i  -->
+<!--                  where b.bnum = i.bnum(+) and i.thumbnail=1   -->
+<!--                  <if test="field!=null and field!=''"> -->
+<!-- 					and ${field} like '%'||#{keyword}||'%'  -->
+<!-- 				 </if> -->
+<!-- 				 order by b.bnum asc -->
+<!-- 			)aa -->
+<!-- 		) -->
+<!-- 		<![CDATA[ where rnum>=#{startRow} and rnum<=#{endRow} ]]> -->
+
+<!-- 	</select> -->
+	
+	
+<!-- 	<select id="sbooklist1count" resultType="int" parameterType="hashmap"> -->
+<!-- 		select NVL(count(*),0) cnt from -->
+<!-- 		books -->
+<!-- 	   <if test="scatenum!=null and scatenum!=''"> -->
+<!-- 			where scatenum like '%'||#{scatenum}||'%' and btitle like '%'||#{keyword}||'%' -->
+<!-- 		</if> -->
+<!-- 	</select> -->
+
+	<select id="sbooklist1count" resultType="int" parameterType="hashmap">
+	
+		select NVL(count(*),0) from(
+			select * from (
+				select aa.* from
+					(
+						select b.*,i.imgsavefilename from books b,img i
+		                 where b.scatenum =#{scatenum} and b.btitle like '%'||#{keyword}||'%' 
+							and b.bnum = i.bnum(+) and i.thumbnail=1 and btype=1 
+						 order by b.bnum asc
+				)aa
+			)
+		)
+		
+	</select>
+	
+	
+
+<!-- ///////////////////////////////////////////////////////////////// -->
+
+
+<!-- 	<select id="newlist" parameterType="hashmap" resultType="books"> -->
+<!-- 	select * from -->
+<!-- 	( -->
+<!-- 		select aa.*,rownum rnum from -->
+<!-- 		( -->
+<!-- 			select * from books -->
+<!-- 	-->
+<!-- 			<include refid="search"/> -->
+<!-- 			 order by bregdate desc -->
+<!-- 		)aa -->
+<!-- 	) -->
+<!-- -->
+<!-- 		<![CDATA[ where rnum>=#{startRow} and rnum<=#{endRow} ]]> -->
+<!-- 	</select> -->
+	
+	<select id="newlist" parameterType="hashmap" resultType="alllist">
+	
+		select * from (
+			select aa.*,rownum rnum from
+			(
+				select b.*,i.imgsavefilename from books b,img i 
+                 where b.bnum = i.bnum(+) and i.thumbnail=1 and btype=1
+                 <if test="field!=null and field!=''">
+					and ${field} like '%'||#{keyword}||'%' 
+				 </if>
+				 order by bregdate desc
+			)aa
+		)
+		<![CDATA[ where rnum>=#{startRow} and rnum<=#{endRow} ]]>
+
+	</select>
+	
+	
+	
+	
+
+
+
+<!--소설 카테고리 -->
+<!-- 	<select id="catenovel" parameterType="hashmap" resultType="books">  -->
+
+<!-- 	select * from -->
+<!-- 	( -->
+<!-- 		select aa.*,rownum rnum from -->
+<!-- 		( -->
+<!-- 			select * from books where  -->
+<!-- 			scatenum in (select scatenum from smallcategory where bcatenum = 100) -->
+<!-- 			order by bnum asc -->
+<!-- 		)aa -->
+<!-- 	) -->
+<!-- 	<![CDATA[ where rnum>=#{startRow} and rnum<=#{endRow} ]]> -->
+	
+<!-- 	</select> -->
+	
+	<select id="catenovel" parameterType="hashmap" resultType="alllist">
+	
+		select * from (
+			select aa.*,rownum rnum from
+			(
+				select b.*,i.imgsavefilename from books b,img i 
+                 where b.bnum = i.bnum(+) and i.thumbnail=1 and btype=1
+                 and b.scatenum in (select scatenum from smallcategory where bcatenum = 100)  
+				 order by b.bnum asc
+			)aa
+		)
+		<![CDATA[ where rnum>=#{startRow} and rnum<=#{endRow} ]]>
+
+	</select>
+	
+	
+	<select id="novelcount" resultType="int" parameterType="hashmap">
+		
+	select NVL(count(*),0) cnt from(
+		select * from (
+			select aa.*,rownum rnum from
+			(
+				select b.*,i.imgsavefilename from books b,img i 
+                 where b.bnum = i.bnum(+) and i.thumbnail=1 and btype=1
+                 and b.scatenum in (select scatenum from smallcategory where bcatenum = 100)  
+				 order by b.bnum asc
+			)aa
+		)
+	)
+	</select>
+<!-- ////////////////////////////////////////	 -->
+	
+<!--시/에세이 카테고리 -->
+<!-- 	<select id="catepoetry" parameterType="hashmap" resultType="books">  -->
+
+<!-- 	select * from -->
+<!-- 	( -->
+<!-- 		select aa.*,rownum rnum from -->
+<!-- 		( -->
+<!-- 			select * from books where  -->
+<!-- 			scatenum in (select scatenum from smallcategory where bcatenum = 110) -->
+<!-- 			order by bnum asc -->
+<!-- 		)aa -->
+<!-- 	) -->
+<!-- 	<![CDATA[ where rnum>=#{startRow} and rnum<=#{endRow} ]]> -->
+<!-- 	</select> -->
+
+	<select id="catepoetry" parameterType="hashmap" resultType="alllist">
+	
+		select * from (
+			select aa.*,rownum rnum from
+			(
+				select b.*,i.imgsavefilename from books b,img i
+                 where b.bnum = i.bnum(+) and i.thumbnail=1 and btype=1
+                 and b.scatenum in (select scatenum from smallcategory where bcatenum = 110)  
+				 order by b.bnum asc
+			)aa
+		)
+		<![CDATA[ where rnum>=#{startRow} and rnum<=#{endRow} ]]>
+
+	</select>
+	
+	
+<!-- 	<select id="poetrycount" resultType="int" parameterType="hashmap"> -->
+<!-- 		select NVL(count(*),0) cnt from books -->
+<!-- 		where scatenum in (select scatenum from smallcategory where bcatenum = 110) -->
+<!-- 	</select> -->
+	
+	<select id="poetrycount" resultType="int" parameterType="hashmap">
+		
+	select NVL(count(*),0) cnt from(
+		select * from (
+			select aa.*,rownum rnum from
+			(
+				select b.*,i.imgsavefilename from books b,img i 
+                 where b.bnum = i.bnum(+) and i.thumbnail=1 and btype=1
+                 and b.scatenum in (select scatenum from smallcategory where bcatenum = 110)  
+				 order by b.bnum asc
+			)aa
+		)
+	)
+	</select>
+	
+<!-- ////////////////////////////////////////	 -->
+
+		<!-- 인문 -->
+	<select id="catehuman" parameterType="hashmap" resultType="alllist">
+	
+		select * from (
+			select aa.*,rownum rnum from
+			(
+				select b.*,i.imgsavefilename from books b,img i 
+                 where b.bnum = i.bnum(+) and i.thumbnail=1 and btype=1
+                 and b.scatenum in (select scatenum from smallcategory where bcatenum = 120)  
+				 order by b.bnum asc
+			)aa
+		)
+		<![CDATA[ where rnum>=#{startRow} and rnum<=#{endRow} ]]>
+
+	</select>
+
+<select id="humancount" resultType="int" parameterType="hashmap">
+		
+	select NVL(count(*),0) cnt from(
+		select * from (
+			select aa.*,rownum rnum from
+			(
+				select b.*,i.imgsavefilename from books b,img i 
+                 where b.bnum = i.bnum(+) and i.thumbnail=1 and btype=1
+                 and b.scatenum in (select scatenum from smallcategory where bcatenum = 120)  
+				 order by b.bnum asc
+			)aa
+		)
+	)
+</select>
+
+		<!-- 경영 -->
+<select id="cateeconomy" parameterType="hashmap" resultType="alllist">
+	
+		select * from (
+			select aa.*,rownum rnum from
+			(
+				select b.*,i.imgsavefilename from books b,img i 
+                 where b.bnum = i.bnum(+) and i.thumbnail=1 and btype=1
+                 and b.scatenum in (select scatenum from smallcategory where bcatenum = 160)  
+				 order by b.bnum asc
+			)aa
+		)
+		<![CDATA[ where rnum>=#{startRow} and rnum<=#{endRow} ]]>
+
+	</select>
+
+<select id="economycount" resultType="int" parameterType="hashmap">
+		
+	select NVL(count(*),0) cnt from(
+		select * from (
+			select aa.*,rownum rnum from
+			(
+				select b.*,i.imgsavefilename from books b,img i 
+                 where b.bnum = i.bnum(+) and i.thumbnail=1 and btype=1
+                 and b.scatenum in (select scatenum from smallcategory where bcatenum = 160)  
+				 order by b.bnum asc
+			)aa
+		)
+	)
+</select>
+
+	
+		<!-- 자기계발 -->
+<select id="cateselfdev" parameterType="hashmap" resultType="alllist">
+	
+		select * from (
+			select aa.*,rownum rnum from
+			(
+				select b.*,i.imgsavefilename from books b,img i 
+                 where b.bnum = i.bnum(+) and i.thumbnail=1 and btype=1
+                 and b.scatenum in (select scatenum from smallcategory where bcatenum = 170)  
+				 order by b.bnum asc
+			)aa
+		)
+		<![CDATA[ where rnum>=#{startRow} and rnum<=#{endRow} ]]>
+
+	</select>
+
+<select id="selfdevcount" resultType="int" parameterType="hashmap">
+		
+	select NVL(count(*),0) cnt from(
+		select * from (
+			select aa.*,rownum rnum from
+			(
+				select b.*,i.imgsavefilename from books b,img i
+                 where b.bnum = i.bnum(+) and i.thumbnail=1 and btype=1
+                 and b.scatenum in (select scatenum from smallcategory where bcatenum = 160)  
+				 order by b.bnum asc
+			)aa
+		)
+	)
+</select>
+
+
+		<!-- 역사/문화 -->
+<select id="catehistory" parameterType="hashmap" resultType="alllist">
+	
+		select * from (
+			select aa.*,rownum rnum from
+			(
+				select b.*,i.imgsavefilename from books b,img i 
+                 where b.bnum = i.bnum(+) and i.thumbnail=1 and btype=1
+                 and b.scatenum in (select scatenum from smallcategory where bcatenum = 190)  
+				 order by b.bnum asc
+			)aa
+		)
+		<![CDATA[ where rnum>=#{startRow} and rnum<=#{endRow} ]]>
+
+	</select>
+
+<select id="historycount" resultType="int" parameterType="hashmap">
+		
+	select NVL(count(*),0) cnt from(
+		select * from (
+			select aa.*,rownum rnum from
+			(
+				select b.*,i.imgsavefilename from books b,img i 
+                 where b.bnum = i.bnum(+) and i.thumbnail=1 and btype=1
+                 and b.scatenum in (select scatenum from smallcategory where bcatenum = 190)  
+				 order by b.bnum asc
+			)aa
+		)
+	)
+</select>
+
+
+		<!-- 취업 -->
+<select id="catejob" parameterType="hashmap" resultType="alllist">
+	
+		select * from (
+			select aa.*,rownum rnum from
+			(
+				select b.*,i.imgsavefilename from books b,img i
+                 where b.bnum = i.bnum(+) and i.thumbnail=1 and btype=1
+                 and b.scatenum in (select scatenum from smallcategory where bcatenum = 260)  
+				 order by b.bnum asc
+			)aa
+		)
+		<![CDATA[ where rnum>=#{startRow} and rnum<=#{endRow} ]]>
+
+	</select>
+
+<select id="jobcount" resultType="int" parameterType="hashmap">
+		
+	select NVL(count(*),0) cnt from(
+		select * from (
+			select aa.*,rownum rnum from
+			(
+				select b.*,i.imgsavefilename from books b,img i
+                 where b.bnum = i.bnum(+) and i.thumbnail=1 and btype=1
+                 and b.scatenum in (select scatenum from smallcategory where bcatenum = 260)  
+				 order by b.bnum asc
+			)aa
+		)
+	)
+</select>
+
+
+		<!-- 여행 -->
+<select id="catetravel" parameterType="hashmap" resultType="alllist">
+	
+		select * from (
+			select aa.*,rownum rnum from
+			(
+				select b.*,i.imgsavefilename from books b,img i 
+                 where b.bnum = i.bnum(+) and i.thumbnail=1 and btype=1
+                 and b.scatenum in (select scatenum from smallcategory where bcatenum = 270)  
+				 order by b.bnum asc
+			)aa
+		)
+		<![CDATA[ where rnum>=#{startRow} and rnum<=#{endRow} ]]>
+
+	</select>
+
+<select id="travelcount" resultType="int" parameterType="hashmap">
+		
+	select NVL(count(*),0) cnt from(
+		select * from (
+			select aa.*,rownum rnum from
+			(
+				select b.*,i.imgsavefilename from books b,img i
+                 where b.bnum = i.bnum and i.thumbnail=1 and btype=1
+                 and b.scatenum in (select scatenum from smallcategory where bcatenum = 270)  
+				 order by b.bnum asc
+			)aa
+		)
+	)
+</select>
+
+
+		<!-- it/컴퓨터 -->
+<select id="cateit" parameterType="hashmap" resultType="alllist">
+	
+		select * from (
+			select aa.*,rownum rnum from
+			(
+				select b.*,i.imgsavefilename from books b,img i 
+                 where b.bnum = i.bnum(+) and i.thumbnail=1 and btype=1
+                 and b.scatenum in (select scatenum from smallcategory where bcatenum = 280)  
+				 order by b.bnum asc
+			)aa
+		)
+		<![CDATA[ where rnum>=#{startRow} and rnum<=#{endRow} ]]>
+
+	</select>
+
+<select id="itcount" resultType="int" parameterType="hashmap">
+		
+	select NVL(count(*),0) cnt from(
+		select * from (
+			select aa.*,rownum rnum from
+			(
+				select b.*,i.imgsavefilename from books b,img i 
+                 where b.bnum = i.bnum(+) and i.thumbnail=1 and btype=1
+                 and b.scatenum in (select scatenum from smallcategory where bcatenum = 280)  
+				 order by b.bnum asc
+			)aa
+		)
+	)
+</select>
+
+
+		<!-- 만화 -->
+<select id="catecartoon" parameterType="hashmap" resultType="alllist">
+	
+		select * from (
+			select aa.*,rownum rnum from
+			(
+				select b.*,i.imgsavefilename from books b,img i 
+                 where b.bnum = i.bnum(+) and i.thumbnail=1 and btype=1
+                 and b.scatenum in (select scatenum from smallcategory where bcatenum = 330)  
+				 order by b.bnum asc
+			)aa
+		)
+		<![CDATA[ where rnum>=#{startRow} and rnum<=#{endRow} ]]>
+
+	</select>
+	
+
+<select id="cartooncount" resultType="int" parameterType="hashmap">
+		
+	select NVL(count(*),0) cnt from(
+		select * from (
+			select aa.*,rownum rnum from
+			(
+				select b.*,i.imgsavefilename from books b,img i
+                 where b.bnum = i.bnum(+) and i.thumbnail=1 and btype=1
+                 and b.scatenum in (select scatenum from smallcategory where bcatenum = 330)  
+				 order by b.bnum asc
+			)aa
+		)
+	)
+</select>
+
+
+
+		<!-- 기타 -->
+<select id="categuitar" parameterType="hashmap" resultType="alllist">
+	
+		select * from (
+			select aa.*,rownum rnum from
+			(
+				select b.*,i.imgsavefilename from books b,img i
+                 where b.bnum = i.bnum(+) and i.thumbnail=1 and btype=1
+                 and b.scatenum in (select scatenum from smallcategory where bcatenum = 550)  
+				 order by b.bnum asc
+			)aa
+		)
+		<![CDATA[ where rnum>=#{startRow} and rnum<=#{endRow} ]]>
+
+	</select>
+
+<select id="guitarcount" resultType="int" parameterType="hashmap">
+		
+	select NVL(count(*),0) cnt from(
+		select * from (
+			select aa.*,rownum rnum from
+			(
+				select b.*,i.imgsavefilename from books b,img i 
+                 where b.bnum = i.bnum(+) and i.thumbnail=1 and btype=1
+                 and b.scatenum in (select scatenum from smallcategory where bcatenum = 550)  
+				 order by b.bnum asc
+			)aa
+		)
+	)
+</select>
+
+
+
+	<!--/////////////////////책 상세페이지//////////////////////////////////// -->
+	<select id="detail" parameterType="int" resultType="book">
+		select * from books where bnum=#{bnum}
+	</select>	
+	
+<!-- 	<select id="bookdetail" parameterType="int" resultType="books"> -->
+	
+<!-- 	</select> -->
+	
+	<!-- //////////////////////////////////////////////////// -->
+	
+	
+	<!-- 조회수 증가하기 -->
+	<update id="hit" parameterType="int">
+		update books set bhit=bhit+1 where bnum=#{bnum}
+	</update>
+	
+	<!-- 이미지 불러오기 -->
+	<select id="imginfo" parameterType="int" resultType="jmimg">
+		select * from img where bnum=#{bnum}
+	</select>
+
+	<select id="allbooklist" parameterType="hashmap" resultType="alllist">
+	
+		select * from (
+			select aa.*,rownum rnum from
+			(
+				select b.*,i.imgsavefilename from books b,img i 
+                 where b.bnum = i.bnum(+) and i.thumbnail=1 and btype=1 
+                 <if test="field!=null and field!=''">
+					and ${field} like '%'||#{keyword}||'%' 
+				 </if>
+				 order by b.bnum asc
+			)aa
+		)
+		<![CDATA[ where rnum>=#{startRow} and rnum<=#{endRow} ]]>
+
+	</select>
+	
+	<select id="bestlist" parameterType="hashmap" resultType="alllist">
+	
+		select * from (
+			select aa.*,rownum rnum from
+			(
+				select b.*,i.imgsavefilename from books b,img i
+                 where b.bnum = i.bnum(+) and i.thumbnail=1 and btype=1
+                 <if test="field!=null and field!=''">
+					and ${field} like '%'||#{keyword}||'%' 
+				 </if>
+				 order by b.bhit desc
+			)aa
+		)
+		<![CDATA[ where rnum>=#{startRow} and rnum<=#{endRow} ]]>
+
+	</select>
+
+	
+	
+	
+	
+<!-- 	 //////////////////상세페이지 책(책,이미지,리스트 다 포함)/////////////////////////////////  -->
+<!-- 	<select id="bookdetail" parameterType="hashmap" resultType="alllist"> -->
+	
+<!-- 				select b.*,i.*,r.bscore from books b,img i,bookreview r  -->
+<!--                  where b.bnum =#{bnum} and b.bnum = i.bnum and b.bnum = r.bnum(+) -->
+<!-- 	</select> -->
+	
+<!-- 	 //////////////////상세페이지 책(책,이미지,리스트 다 포함)/////////////////////////////////  -->
+<!-- 	<select id="bookdetail" parameterType="hashmap" resultType="alllist"> -->
+	
+<!-- 				select b.*,i.* from books b,img i  -->
+<!--                  where b.bnum =#{bnum} and b.bnum = i.bnum(+) -->
+<!-- 	</select> -->
+	
+	<!-- //////////////////상세페이지 책(책,이미지,리스트 다 포함)///////////////////////////////// -->
+	<select id="bookdetail" parameterType="hashmap" resultType="alllist">
+	
+				select b.*,i.* from books b,img i 
+                 where b.bnum =#{bnum} and b.bnum = i.bnum(+)
+	</select>
+	
+	
+	<!-- 책리뷰 목록/////// -->
+<!-- 		아직 합치질 않아서 멤버즈 넘버를 임시로 4로 지정해뒀음 -->
+	<select id="reviewlist" parameterType="hashmap" resultType="breviewc">
+	select * from
+	(
+		select aa.*,rownum rnum from
+		(
+			select br.*,m.mname from bookreview br,members m 
+			where br.bnum=#{bnum} and br.mnum = m.mnum
+			order by br.bnum desc
+		)aa
+	)
+		<!-- CDATA - '<','>' 같은 특수기호문자들을 멋대로 해석하지(변환하지) 않고 그대로 쓰게 하는거임  -->
+		<![CDATA[ where rnum>=#{startRow} and rnum<=#{endRow} ]]>
+	</select>
+	
+	
+	<!-- 책리뷰카운터 -->
+	<select id="breviewcount" resultType="int" parameterType="hashmap">
+	select NVL(count(*),0) cnt from(
+		select * from (
+			select aa.*,rownum rnum from
+			(
+			select br.*,m.mname from bookreview br,members m 
+			where br.bnum=#{bnum} and br.mnum = m.mnum
+			order by br.bnum desc
+			)aa
+		)
+	)
+	</select>
+	
+	
+	<!-- 리뷰 등록  -->
+	<select id="breviewinsert" parameterType="reviewinsert">
+		insert into bookreview values(SEQ_BOOKREVIEW_REVIEWNUM.nextval,
+		#{mnum},#{bnum},#{reviewcontent},#{bscore},sysdate)
+	</select>
+	
+	
+	
+	<!-- 다음글  -->
+	<select id="next" parameterType="int" resultType="book">
+	    select * from(
+			select * from books b,img i,bookreview r where b.bnum>#{bnum} 
+		    order by b.bnum asc
+	    )where rownum=1
+	</select>
+	<!-- 이전긁 -->
+	<select id="prev" parameterType="int" resultType="book">
+		select * from(
+		<![CDATA[ select * from books b,img i,bookreview r where b.bnum<#{bnum} ]]>
+		order by b.bnum desc
+		)where rownum=1
+	</select>
+	<select id="asc" parameterType="int" resultType="book">
+	    select *from(
+	    	select aa.*,rownum rnum from(
+    			select * from books order by bnum desc
+   			)aa 
+    	<![CDATA[)where rnum<=5]]>
+	</select>
+
+	<!-- cart에 인서트 할거임 -->
+	
+	<select id="cartinsert" parameterType="cart" resultType="int">
+		insert into cart values(SEQ_CART_CARTNUM.nextval,#{mnum},#{bcount},1,#{bnum})
+	</select>
+	
+	<select id="cartselect" parameterType="hashmap" resultType="int">
+		select NVL(COUNT(*),0) FROM CART WHERE BNUM=#{bnum} and MNUM=#{mnum} and BTYPE=#{btype}
+	</select>
+	
+	
+</mapper>

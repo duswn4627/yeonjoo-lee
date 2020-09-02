@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jhta.mybatis.mapper.OldBooksMapper">
+
+		<!-- ====================중고====================== -->
+	
+	<select id="oldalllist" parameterType="hashmap" resultType="oldall">
+	
+		select * from (
+			select aa.*,rownum rnum from
+			(
+				select ob.*,i.imgsavefilename from oldbooks ob,img i  
+                 where ob.obnum = i.bnum(+) and i.thumbnail=1 and i.btype=2 and obsalestatus = 0
+				 order by ob.obnum asc
+			)aa
+		)
+		<![CDATA[ where rnum>=#{startRow} and rnum<=#{endRow} ]]>
+
+	</select>
+	
+	<!-- 중고전체카운트 -->
+	<select id="oldallcount" resultType="int" parameterType="hashmap">
+
+		select NVL(count(*),0) from(
+		
+		select * from (
+			select aa.*,rownum rnum from
+			(
+				select ob.*,i.imgsavefilename from oldbooks ob,img i  
+                 where ob.obnum = i.bnum(+) and i.thumbnail=1 and i.btype=2  and obsalestatus = 0
+				 order by ob.obnum asc
+			)aa
+		)
+		)
+	</select>
+	
+		<!-- 중고/검색 -->
+	<select id="oldsclist" parameterType="hashmap" resultType="oldall">
+	
+		select * from (
+			select aa.*,rownum rnum from
+			(
+				select ob.*,i.imgsavefilename from oldbooks ob,img i
+                 where ob.scatenum = #{scatenum} and ob.obname like '%'||#{keyword}||'%'
+                 	and ob.obnum = i.bnum(+) and i.thumbnail=1 and obsalestatus = 0
+				 order by ob.obnum asc
+			)aa
+		)
+		<![CDATA[ where rnum>=#{startRow} and rnum<=#{endRow} ]]>
+
+	</select>
+	
+	<select id="oldsccount" resultType="int" parameterType="hashmap">
+	
+		select NVL(count(*),0) from(
+			select * from (
+				select aa.* from
+					(
+						select ob.*,i.imgsavefilename from oldbooks ob,img i
+		                 where ob.scatenum =#{scatenum} and ob.obname like '%'||#{keyword}||'%' 
+							and ob.obnum = i.bnum(+) and i.thumbnail=1 and obsalestatus = 0
+						 order by ob.obnum asc
+				)aa
+			)
+		)
+		
+	</select>
+	
+	<!-- 중고   -->
+	<select id="getosCatename" parameterType="int" resultType="String">
+		select scataname from smallcategory where scatenum =#{scatenum}
+	</select>
+	<select id="getobCatename" parameterType="int" resultType="String">
+		select bcataname from bigcategory where bcatenum =#{bcatenum}
+	</select>
+	
+		<!-- 조회수 증가하기 -->
+	<update id="hit" parameterType="int">
+		update oldbooks set obhit=obhit+1 where obnum=#{obnum}
+	</update>
+	
+	<!-- 이미지 불러오기 -->
+	<select id="imginfo" parameterType="int" resultType="jmimg">
+		select * from img where bnum=#{bnum}
+	</select>
+	
+	<!--  큰 카테고리 목록 가져오기   -->
+	<select id="bcatelist" resultType="bigcate">
+		select * from bigcategory order by bcatenum asc
+	</select>
+	
+	<!--  작은 카테고리 목록 불러오기 -->
+	<select id="scatelist" parameterType="int" resultType="smallcate">
+		select * from smallcategory where bcatenum=#{bcatenum} order by scatenum asc
+	</select>
+
+	<select id="bookdetail" parameterType="hashmap" resultType="oldall">
+				select ob.*,i.* from oldbooks ob,img i 
+                 where ob.obnum =#{obnum} and ob.obnum = i.bnum(+)
+	</select>
+	
+		<!-- cart에 인서트 할거임 -->
+	<select id="oldcartinsert" parameterType="oldcart" resultType="int">
+		insert into cart values(SEQ_CART_CARTNUM.nextval,#{mnum},#{bcount},2,#{obnum})
+	</select>
+	
+		
+	<select id="oldcartselect" parameterType="hashmap" resultType="int">
+		select NVL(COUNT(*),0) from cart where bnum=#{obnum} and mnum=#{mnum} and btype=#{btype}
+	</select>
+	
+	<!-- ////////////중고 QnA////////////// -->		
+	<!-- QnA 등록  -->
+	
+	<select id="obqnainsert" parameterType="obqnainsert">
+		insert into obqna values(SEQ_OBQNA_OBQNUM.nextval,
+		#{obqtitle},#{obqcontent},0,sysdate,#{obnum},#{mnum})
+	</select>
+
+	<select id="obqnadelete" parameterType="int">
+		delete from obqna where obqnum=#{obqnum}
+	</select>
+
+		<!-- 중고판매자 QnA리스트 가져오기 -->
+	<select id="getSellerQnaList" resultType="qnalistjoin" parameterType="hashmap">
+		select obname,obqtitle,obqcontent,mid,obqstatus,OBQDATE,obnum,obqnum,mnum
+		from(
+  			select qna.*,ROWNUM rnum
+    		from(
+	        select o.obname obname, oq.obqtitle obqtitle, oq.obqcontent obqcontent, m.mid mid, oq.obqstatus obqstatus,
+			oq.obqdate obqdate,o.obnum obnum,oq.obqnum obqnum,m.mnum mnum
+			from oldbooks o,obqna oq, members m
+			where o.obnum=oq.obnum and oq.mnum=m.mnum and o.obnum=#{obnum}
+       		order by oq.obqdate desc)qna)a
+     
+	</select>
+	<!-- 중고판매자 QnA총 글갯수 가져오기 -->
+	<select id="getSellerQnaCount" resultType="int" parameterType="hashmap">
+		select NVL(count(*),0) count
+		from oldbooks o,obqna oq, members m
+		where o.obnum=oq.obnum and oq.mnum=m.mnum and o.snum=#{snum}
+	</select>
+
+
+		<!-- 판매자리뷰 목록/////// -->
+	<select id="reviewlist" parameterType="hashmap" resultType="obreviewc">
+	select * from
+	(
+		select aa.*,rownum rnum from
+		(
+			select sr.*,m.mname from sellerreview sr,members m 
+			where sr.obnum=#{obnum} and sr.mnum = m.mnum
+			order by sr.obnum desc
+		)aa
+	)
+
+		<![CDATA[ where rnum>=#{startRow} and rnum<=#{endRow} ]]>
+	</select>
+	
+	
+	<!-- 책리뷰카운터 -->
+	<select id="breviewcount" resultType="int" parameterType="hashmap">
+	select NVL(count(*),0) cnt from(
+		select * from (
+			select aa.*,rownum rnum from
+			(
+			select br.*,m.mname from bookreview br,members m 
+			where br.bnum=#{bnum} and br.mnum = m.mnum
+			order by br.bnum desc
+			)aa
+		)
+	)
+	</select>
+	
+
+</mapper>

@@ -1,0 +1,63 @@
+
+#bcate{
+	width:400px;
+	position: relative;
+	margin-left: 10px;
+	display: inline-block;
+}
+#search{
+	width:280px;
+	position: relative;
+	margin-right: 1px;
+	display: inline-block;
+	
+}
+#main{
+	position: relative;
+	margin-left: 640px;
+	display: inline-block;
+}
+#listwrap{
+	width:1100px;
+	height:200px;
+	display: inline-block;
+	margin-left:1px;
+}
+#image{
+	width:150px;
+	height:80px;
+	display: inline-block;
+	margin-left: 1px;
+}
+#thumbnail{
+	width:150px;
+		display: inline-block;
+	margin-left: 1px;	
+}
+
+#detail{
+	width:400px;
+	display: inline-block;
+	margin-left: 1px;
+}
+.title{
+	width: 400px;
+}
+.pub_info{
+	width: 400px;
+}
+.price{
+	width: 400px;
+}
+.review_score{
+	width: 400px;
+}
+
+li{
+	list-style-type: none;
+}
+#buycartbtn{
+	width:200px;
+	display: inline-block;
+	margin-right: 1px;
+}

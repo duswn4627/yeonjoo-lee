@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jhta.yj.mybatis.mapper.QnaAnswerMapper">
+	<insert id="qnaAnswerInsert" parameterType="adminqnaAnswer">
+		insert into qnaanswer values('admin', #{qnanum}, #{acontent}, sysdate)
+	</insert>
+	
+	<select id="answerInfo" resultType="adminqnaAnswer" parameterType="int">
+		select maid, a.qnanum qnanum, a.qnacontent acontent, qnaregdate adate, 
+		m.mnum mnum, mid, qnatitle, q.qnacontent qcontent, qnastatus, qnadate qdate 
+		from qnaanswer a, qna q, members m 
+		where q.qnanum = a.qnanum and q.mnum = m.mnum and q.qnanum = #{qnanum}
+	</select>
+	
+	<!-- 답변 수정 -->
+	<update id="answerUpdate" parameterType="adminqnaAnswer">
+		update qnaanswer set qnacontent = #{acontent} where qnanum = #{qnanum}
+	</update>
+	
+	<!-- 답변 삭제-->
+	<delete id="answerDelete" parameterType="int">
+		delete from qnaanswer where qnanum = #{qnanum}
+	</delete>
+</mapper>

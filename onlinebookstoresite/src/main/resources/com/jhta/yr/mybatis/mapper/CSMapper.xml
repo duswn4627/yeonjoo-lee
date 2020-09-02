@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jhta.yr.mybatis.mapper.CSMapper">
+	<select id="CSCount" resultType="Hashmap">
+		select type, count(*) count from refundhistory group by type
+	</select>
+
+	<sql id="CSStatus">
+		<if test="@com.jhta.finalproject.yr.mybatischeck.MybatisCheck@notEmpty(CSStatus)">
+			and type = #{CSStatus}				
+	    </if>		
+	</sql>
+	
+	<sql id="search">
+		<!-- 		주문번호, 주문자 -->
+		<if test="@com.jhta.finalproject.yr.mybatischeck.MybatisCheck@notEmpty(pfield)">	
+			<choose>
+				<when test="pfield == 'bpaynum'">
+					and bpayment.${pfield} like '%'||#{pkeyword}||'%'
+				</when>
+				<when test="pfield == 'mname'">
+					and members.${pfield} like '%'||#{pkeyword}||'%'
+				</when>
+			</choose>
+		</if>
+			
+		<!-- 주문일, 접수일 -->
+		<if test="@com.jhta.finalproject.yr.mybatischeck.MybatisCheck@notEmpty(startDate)">
+			 and TRUNC(${tfield}) BETWEEN TO_DATE(#{startDate}) AND TO_DATE(#{endDate})
+		</if>	
+		
+		<!-- 		책제목, 첵 번호 -->
+		<if test="@com.jhta.finalproject.yr.mybatischeck.MybatisCheck@notEmpty(bfield)">
+			and books.${bfield} like '%'||#{bkeyword}||'%'
+		</if>
+		
+<!-- 		처리상태 -->
+
+		<if test="@com.jhta.finalproject.yr.mybatischeck.MybatisCheck@notEmpty(status)">
+			and status in
+			<foreach collection="status" item="bs" open="(" close=")" separator=",">
+				<if test="status != -1">
+				#{bs,jdbcType=VARCHAR}	
+				</if>
+			</foreach>
+		</if>
+
+			<!-- 	    회원상태 -->
+		<if test="@com.jhta.finalproject.yr.mybatischeck.MybatisCheck@notEmpty(mType)">
+			<if test="mType == 2">
+				and bpayment.mnum = 0  						
+			</if>						
+			<if test="mType == 1">
+				and bpayment.mnum != 0  						
+			</if>				
+	    </if>
+	    
+	</sql>
+
+	<resultMap type="com.jhta.finalproject.yr.vo.PaymentAndCSBookListVo" id="CSAndPaymentBookList">
+		<result property="bpaynum" column="bpaynum"/>
+		<result property="baddr" column="baddr"/>
+		<result property="bphone" column="bphone"/>
+		<result property="bfinalmoney" column="bfinalmoney"/>
+		<result property="borderdate" column="borderdate"/>
+		<result property="bpaydate" column="bpaydate"/>
+		<result property="bstatus" column="bstatus"/>
+		<result property="ordermoney" column="ordermoney"/>
+		<result property="usedpoint" column="usedpoint"/>
+		<result property="methodpayment" column="methodpayment"/>
+		<result property="delfee" column="delfee"/>
+		<result property="receiver" column="receiver"/>
+		<result property="mnum" column="mnum"/>
+		<result property="mname" column="mname"/>
+		<collection property="CSAndPaymentBook" ofType="com.jhta.finalproject.yr.vo.CSAndPaymentBookVo">
+			<result property="bpaynum" column="bpaynum"/>
+			<result property="btype" column="btype"/>
+			<result property="bnum" column="bnum"/>
+			<result property="bcount" column="bcount"/>
+			<result property="btitle" column="btitle"/>
+			<result property="bprice" column="bprice"/>
+			<result property="point" column="point"/>
+			<result property="paymentbook_num" column="paymentbook_num"/>
+			<result property="status" column="status"/>
+			<result property="aplctdate" column="aplctdate"/>
+			<result property="recomdate" column="recomdate"/>
+			<result property="type" column="type"/>
+			<result property="count" column="count"/>
+		</collection>	
+	</resultMap>
+
+	<sql id="selectPaynum">
+		<if test="@com.jhta.finalproject.yr.mybatischeck.MybatisCheck@notEmpty(bpaynum)">
+			and bpayment.bpaynum = #{bpaynum}
+		</if>			
+		<if test="@com.jhta.finalproject.yr.mybatischeck.MybatisCheck@notEmpty(type)">
+			and type = #{type}
+		</if>
+	</sql>
+	
+	<select id="getOnePayment" resultMap="CSAndPaymentBookList">
+		select bpayment.*, paymentbook.*, books.* ,members.mname, refundhistory.*
+	    from bpayment, paymentbook, members, books, refundhistory
+	    where bpayment.bpaynum = paymentbook.bpaynum
+	    and members.mnum = bpayment.mnum
+	    and paymentbook.bnum= books.bnum
+	    and paymentbook.paymentbook_num = refundhistory.paymentbook_num(+)
+		<include refid="CSStatus"/>
+    	<include refid="selectPaynum"/>	    
+    	<include refid="search"/>	      
+	</select>
+
+	<select id="paymentList" resultMap="CSAndPaymentBookList">
+		select * from bpayment, paymentbook, members, books, refundhistory WHERE BPAYMENT.BPAYNUM in(
+             select bpaynum from (
+                 select a.*, ROWNUM rum from    
+                    (
+                           select DISTINCT bpayment.bpaynum
+                            from bpayment, paymentbook, members, books, refundhistory 
+                            where bpayment.bpaynum = paymentbook.bpaynum
+                            and members.mnum = bpayment.mnum 
+                            and paymentbook.bnum= books.bnum
+                            and paymentbook.paymentbook_num = refundhistory.paymentbook_num(+)
+                            and btype = 1
+				    	    <include refid="CSStatus"/>
+					    	<include refid="selectPaynum"/>	    
+					    	<include refid="search"/>	  
+                    ) a
+            	      
+                )  
+                <if test="@com.jhta.finalproject.yr.mybatischeck.MybatisCheck@notEmpty(startRow)">
+            		 <![CDATA[where rum >= #{startRow} and rum <= #{endRow}]]>
+            	</if>  
+            )AND members.mnum = bpayment.mnum
+            and paymentbook.bpaynum = bpayment.bpaynum
+            and paymentbook.bnum= books.bnum
+            and paymentbook.paymentbook_num = refundhistory.paymentbook_num(+)
+            order by bpayment.bpaynum
+	</select>
+	
+	<select id="getTotalCount" resultType="int">
+			select count(distinct bpayment.bpaynum) total
+		    from bpayment, paymentbook, members, books, refundhistory
+		    where bpayment.bpaynum = paymentbook.bpaynum
+		    and members.mnum = bpayment.mnum
+		    and paymentbook.bnum= books.bnum
+		    and paymentbook.paymentbook_num = refundhistory.paymentbook_num(+)
+		    and btype = 1
+    	    <include refid="CSStatus"/>
+	    	<include refid="selectPaynum"/>	    
+	    	<include refid="search"/>	
+	</select>
+
+<!-- 취소 -->
+	<insert id="cancelPaymentInsert" parameterType="payment">
+		insert into bpayment values (SEQ_BPAYMENT_BPAYNUM.nextval,#{baddr},#{bphone},#{bfinalmoney},
+			sysdate, null,0,#{ordermoney},0,#{methodpayment},#{receiver},#{delfee},#{mnum})
+	</insert>
+
+	<insert id="paymentbooksInsert" parameterType="booksVo">
+		insert into paymentbook values (SEQ_BPAYMENT_BPAYNUM.currval, 1, #{bnum}, #{bcount}, SEQ_PAYMENTBOOK_NUM.nextval, #{point})
+	</insert>
+	
+	<update id="updateCancelStatus" parameterType="int">
+		update bpayment set bstatus = 6 where bpaynum = #{bpaynum}
+	</update>
+	
+	
+	
+	<update id="updateRefundStatus" parameterType="int">
+		update refundhistory set status = 3, recomdate = sysdate where paymentbook_num = #{paymentbook_num}
+	</update>
+
+<!-- 교환, 반품 상태 업데이트 -->
+	<update id="updateStatus" parameterType="hashmap">
+		update refundhistory set status = #{status} 
+		<if test="status == 3">
+		 , recomdate = sysdate		 
+		</if>	
+		where 
+		<foreach collection="paymentbook_num" item = "paymentbook_num" separator="or">
+		 paymentbook_num = #{paymentbook_num}
+		</foreach>
+	</update>
+
+<!-- 회원번호 가져오기 -->
+	<select id="getMnum" resultType="int" parameterType="int">
+		select mnum from bpayment where bpaynum = #{bpaynum}
+	</select>
+	
+<!-- 	반품 포인트 회수 -->
+	<insert id="pointReturn" parameterType="pointVo">
+		insert into point values (#{mnum}, #{bpaynum}, #{tranpoint}, sysdate)
+	</insert>
+	
+<!-- 	예치금 증감 -->
+	<insert id="giveDeposit" parameterType="depositVo">
+		insert into deposit values (SEQ_DEPOSIT_DNUM.nextval, #{mnum}, #{bpaynum}, #{dtran}, sysdate, #{dereason})
+	</insert>
+	
+<!-- 	최종금액 업데이트 -->
+	<update id="updatePayment" parameterType="hashmap">
+		update bpayment set bstatus = 5 , bfinalmoney = bfinalmoney - #{returnPrice} where bpaynum = #{bpaynum}
+	</update>
+	
+	<select id="getTodayCSCount" resultType="int">
+		select nvl(count(*),0) count from refundhistory where  
+		TRUNC(aplctdate) BETWEEN TO_DATE(sysdate) AND TO_DATE(sysdate) 
+	</select>
+	
+</mapper>

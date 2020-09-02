@@ -1,0 +1,75 @@
+@charset "UTF-8";
+#logoImg{
+	width:160px;
+	height:56px;
+	display:inline-block;
+}
+#content-mid-best,#content-mid-new{
+	width:1110px;
+	height:456px; 
+	border-radius: 8px;
+	border:2px solid grey;
+	padding-left:10px;
+	padding-right:10px;
+}
+#content-mid-best{
+	margin-top:25px;
+	
+}
+#content-card{
+	display:table-cell;
+	vertical-align:middle;
+	border:2px solid red;
+	width:1110px;
+	height:456px;
+	padding-left:20px;
+	padding-top:30px;
+	padding-bottom:30px;
+}
+#bestprev,#bestnext,#newprev,#newnext{
+	display: inline-block;
+	width: 30px;
+	height: 100%;
+	text-align: center;
+}
+#bestprev,#newprev{
+	margin-right:10px;
+	
+}
+#bestnext,#newnext{
+	margin-left:10px;
+}
+#content-new-card .card,#content-best-card .card{
+	width:12rem;
+	display:inline-block;
+}
+#content-new-card  > div #imgwrap,#content-best-card  > div #imgwrap{
+	width:100%;
+	height:17rem;
+
+}
+#content-new-card  > div > div img, #content-best-card  > div > div img {
+	  maxwidth:10rem;
+	  height:100%;
+}
+#content-new-card,#content-best-card{
+	left: 22px;
+    position: relative;
+	
+}
+#bestprev img, #bestnext img, #newprev img,#newnext img{
+	width:100%;
+	height:auto;
+}
+#content-mid-new h3, #content-mid-best h3{
+	text-align: center;
+}
+.colorfont{
+	color: #f51167;
+	font-weight: 600;
+}
+#main_container{
+	width:1140px;
+	height:1540px;
+}
+

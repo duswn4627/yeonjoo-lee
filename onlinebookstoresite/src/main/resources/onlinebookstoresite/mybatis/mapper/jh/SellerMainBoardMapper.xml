@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jhta.mybatis.mapper.SellerMainBoardMapper.jh">
+	<!-- 중고판매자 메인 관련 Mapper파일 -->
+	
+	<!-- 중고판매자 인증된 회원 등록 -->
+	<insert id="sellerInsert" parameterType="int">
+		insert into obseller values(SEQ_OBSELLER_SNUM.nextval,#{mnum})
+	</insert>
+	<!-- 인증완료된 중고판매자 회원번호 가져오기 -->
+	<select id="getSnum" parameterType="int" resultType="int">
+		select snum from obseller where mnum=#{mnum}
+	</select>
+	
+	
+	<!-- 최근 한달간 등록 상품 -->
+	<select id="getOldbookCount" resultType="int" parameterType="int">
+		select NVL(count(*),0) count from oldbooks where obregdate >= TO_DATE(add_months(sysdate,-1)) and snum=#{snum}
+	</select>
+	<!-- 최근 한달간 판매현황(0:주문/입금대기중,1:결제완료,2:배송중,3:수령완료(구매확정)) -->
+	<select id="getOldbookSalestatusCount" resultType="int" parameterType="hashmap">
+		select NVL(count(distinct(pay)),0) count from (
+		   select bp.bpaynum pay from 
+		   bpayment b,oldbooks o,paymentbook bp,members m 
+		   where o.snum=#{snum} and b.bstatus=#{bstatus} and b.bpaynum=bp.bpaynum and bp.btype=2
+		   and bp.bnum=o.obnum and m.mnum=b.mnum and borderdate >= TO_DATE(add_months(sysdate,-1)))
+	</select>
+	<!-- 최근 한달 정산조회 -->
+	<select id="getObcompleteCount" resultType="int" parameterType="hashmap">
+		select count(DISTINCT(b.bpaynum)) count 
+		from bpayment b, paymentbook bp, oldbooks o, members m, obcomplete ob 
+		where b.bpaynum=bp.bpaynum and bp.bnum=o.obnum and b.mnum=m.mnum and snum=#{snum} and b.bstatus=3 and bp.btype=2 and bp.paymentbook_num=ob.paymentbook_num
+		and ob.bocomstatus=#{bocomstatus} and feedate >= TO_DATE(add_months(sysdate,-1))
+	</select>
+	<!-- 최근한달 미답변 Qna -->
+	<select id="getMainQnaCount" resultType="int" parameterType="int">
+		select NVL(count(*),0) count
+		from oldbooks o,obqna oq, members m
+		where o.obnum=oq.obnum and oq.mnum=m.mnum and o.snum=#{snum} and oq.obqstatus=0
+		and obqdate >= TO_DATE(add_months(sysdate,-1))
+	</select>
+	<!-- 최근한달 리뷰갯수 -->
+	<select id="getSellerReviewCount" resultType="int" parameterType="int">
+		select NVL(count(*),0) count
+		from sellerreview re,members m,oldbooks o,obseller os
+		where re.mnum=m.mnum and re.obnum=o.obnum and o.snum=os.snum and os.snum=#{snum}
+        and re.sreviewregdate >= TO_DATE(add_months(sysdate,-1))
+	</select>
+</mapper>

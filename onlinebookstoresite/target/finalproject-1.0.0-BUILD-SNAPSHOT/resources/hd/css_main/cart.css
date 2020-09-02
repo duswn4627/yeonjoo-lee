@@ -1,0 +1,14 @@
+#logoImg{
+	width:160px;
+	height:56px;
+	display:inline-block;
+}
+.cartlistimg{
+	width:100px;
+	height:auto;
+}
+.progbar {margin:16px 0 36px 0;width:960px;}
+.progbar h1 {width:300px;height:42px;text-indent:-9999em;background:url('../image/cart.png') 0 0 no-repeat;}
+.progbar .cart {}
+.progbar .pay	 {background-position:0 -100px;}
+.progbar .finish {background-position:0 -150px;}

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jhta.mybatis.mapper.SellerProdLookMapper.jh">
+	<!-- ////////////////상품페이징처리 관련//////////////// -->
+	<!-- 전체 중고책 등록한 상품 조회를 위한 MapperFile -->
+	<!-- 검색조건 -->
+	<sql id="search">
+		 <!-- 
+		<if test="obsalestatus!=null and obsalestatus != 3 and obsalestatus !=''">
+			and obsalestatus=#{obsalestatus}
+		</if>
+	 -->
+		<if test="obsalestatus == 0">
+			and obsalestatus=0
+		</if>
+		<if test="obsalestatus == 1">
+			and obsalestatus=1
+		</if>
+		<if test="obsalestatus == 2">
+			and obsalestatus=2
+		</if>
+		<if test="obsalestatus == 3">
+			and obsalestatus=3
+		</if>
+		<if test='field=="all" and keyword != null and keyword !=""'>
+			and obpublisher like '%'||#{keyword}||'%' 
+			or obname like '%'||#{keyword}||'%' 
+			or obwriter like '%'||#{keyword}||'%'
+		</if>
+		<if test='field=="obname"'>
+			and obname like '%'||#{keyword}||'%'
+		</if>
+		<if test='field=="obwriter"'>
+			and obwriter like '%'||#{keyword}||'%'
+		</if>
+		<if test='field=="obpublisher"'>
+			and obpublisher like '%'||#{keyword}||'%'
+		</if>
+		<if test="startDay!=null and startDay!=''">
+			<![CDATA[
+				and obregdate >= to_date(#{startDay},'yyyy-mm-dd') and obregdate <= to_date(#{endDay},'yyyy_mm_dd')+0.99999
+			]]>
+		</if>
+	</sql>
+	
+	<!-- 총 글의 갯수 -->
+	<select id="oldbookPageCount" parameterType="hashmap" resultType="int">
+	 	select NVL(count(*),0) cunt from oldbooks where snum=#{snum} 
+	 	<include refid="search"/>
+	 </select>
+	 
+	<!--등록된 상품조회 -->
+	<select id="prodAllSelect" parameterType="hashmap" resultType="oldbooks">
+		select *
+			from (select ob.*,rownum rnum from (select * from oldbooks where snum=#{snum} 
+			<include refid="search"></include>
+			order by obnum desc) ob) book
+		<![CDATA[
+			where rnum>=#{startRow} and rnum <=#{endRow}
+		]]>
+		ORDER by obregdate desc
+	</select>
+
+
+	
+	<!-- //////////상품수정 관련 mapper//////////// -->
+	<!-- 수정할 상품정보 가져오기 -->
+	<select id="prodUpdateSelect" parameterType="int" resultType="oldbooks">
+		select * from oldbooks where obnum=#{obnum}
+	</select>
+	<!-- 수정할 상품정보 가져오기(큰 카테고리 넘버 가져오기) -->
+	<select id="updateGetBigcatenum" parameterType="int" resultType="int">
+		select s.bcatenum bcatenum from smallcategory s,(select * from oldbooks where obnum=#{obnum}) b
+		where s.scatenum=b.scatenum
+	</select>
+	<!-- 수정할 상품정보 가져오기(이미지) -->
+	<select id="getProdImg" parameterType="int" resultType="img">
+		select * from img where bnum=#{bnum} order by thumbnail desc
+	</select>
+	<!-- 중고책 상품수정 -->
+	<update id="updateProdinfo" parameterType="oldbooks">
+		update oldbooks set selleraddr=#{selleraddr},obname=#{obname},obwriter=#{obwriter},
+		obpublisher=#{obpublisher},obpdate=#{obpdate},obstatus=#{obstatus},oborgprice=#{oborgprice},
+		obsaleprice=#{obsaleprice},obdetail=#{obdetail},obdelfee=#{obdelfee},scatenum=#{scatenum} 
+		where obnum=#{obnum}
+	</update>
+	<!-- 중고책수정 이미지 등록 -->
+	<insert id="updateImg" parameterType="img">
+		insert into img values(#{imgorgfilename},SEQ_IMG_IMGNUM.nextval,#{imgsavefilename},#{thumbnail},2,#{bnum})
+	</insert>
+	<!-- 중고책 이미지 삭제 -->
+	<delete id="deleteImg" parameterType="int">
+		delete from img where imgnum=#{imgnum}
+	</delete>
+	<!-- 삭제할 이미지 정보 가져오기 -->
+	<select id="getImginfo" parameterType="int" resultType="img">
+		select * from img where imgnum=#{imgnum}
+	</select>
+	
+	
+	
+	
+	<!-- ////////////////////상품삭제관련Mapper////////////////// -->
+	<!-- 중고책 상품 삭제 -->
+	<delete id="oldbookDel" parameterType="int">
+		delete from oldbooks where obnum=#{obnum} and obsalestatus=0
+	</delete>
+	<!-- 중고책번호로 이미지 삭제 -->
+	<delete id="oldbookImgDel" parameterType="int">
+		delete from img where bnum=#{bnum}
+	</delete>
+	<select id="delImgInfo" parameterType="int" resultType="img">
+		select * from img where bnum=#{bnum}
+	</select>
+	<!-- 중고책 해당하는 답변삭제 -->
+	<delete id="obqanswerdel" parameterType="int">
+		delete from obqanswer where obqnum=(select obqnum from obqna where obnum=#{obnum})
+	</delete>
+	<!-- 중고책 문의사항 삭제 -->
+	<delete id="obqnadel" parameterType="int">
+		delete from obqna where obnum=#{obnum}
+	</delete>
+</mapper>

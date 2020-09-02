@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN" 
+"http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+<tiles-definitions>
+	<!-- ///////////////////////지호/////////////////////////////// -->
+	<!-- 중고판매자 tiles설정-->
+	<definition name=".seller" template="/WEB-INF/views/jiho/sellerLayout.jsp">
+		<put-attribute name="sellerHeader" value="/WEB-INF/views/jiho/sellerHeader.jsp"/>
+		<put-attribute name="sellerContent" value="/WEB-INF/views/jiho/sellerContent.jsp"/>
+		<put-attribute name="sellerFooter" value="/WEB-INF/views/heedo/main/footer.jsp"/>
+	</definition>
+	<!-- 중고 상품등록관련 -->
+	<definition name=".seller.product" extends=".seller">
+		<put-attribute name="sellerContent" value="/WEB-INF/views/jiho/regProct/sellerInputProct.jsp"/>
+	</definition>
+	<definition name=".seller.insertok" extends=".seller">
+		<put-attribute name="sellerContent" value="/WEB-INF/views/jiho/regProct/sellerInsertOk.jsp"/>
+	</definition>
+	<definition name=".seller.insertfail" extends=".seller">
+		<put-attribute name="sellerContent" value="/WEB-INF/views/jiho/regProct/sellerInsertFail.jsp"/>
+	</definition>
+	<!-- 중고 상품 조회 관련 -->
+	<definition name=".seller.prodLook" extends=".seller">
+	 	<put-attribute name="sellerContent" value="/WEB-INF/views/jiho/lookProd/sellerProdLook.jsp"/>
+	</definition>
+	
+	<!-- 중고상품 수정관련 -->
+	<definition name=".seller.prodUpdateView" extends=".seller">
+		<put-attribute name="sellerContent" value="/WEB-INF/views/jiho/lookProd/sellerProdUpdateView.jsp"/>
+	</definition>
+	<!-- ////////////////////////////////////////////////////////////////////////// -->
+	
+	<!-- /////////////////////희도//////////////////////////////ㄴ -->
+	<!-- 홈화면 -->
+	<definition name=".main" template="/WEB-INF/views/heedo/layout/mainlayout.jsp">
+		<put-attribute name="header" value="/WEB-INF/views/heedo/main/header.jsp"/>
+		<put-attribute name="content" value="/WEB-INF/views/heedo/main/content.jsp"/>
+		<put-attribute name="footer" value="/WEB-INF/views/heedo/main/footer.jsp"/>
+	</definition>
+	
+	<!-- 마이페이지  -->
+	<definition name=".mypage" template="/WEB-INF/views/heedo/layout/mypagelayout.jsp">
+		<put-attribute name="header" value="/WEB-INF/views/heedo/main/header.jsp"/>
+		<put-attribute name="content_header" value="/WEB-INF/views/heedo/mypage/content_header/mypage_main.jsp"/>
+		<put-attribute name="menu" value="/WEB-INF/views/heedo/mypage/menu.jsp"/>
+		<put-attribute name="content_body_top" value="/WEB-INF/views/heedo/mypage/content_body_top.jsp"/>
+		<put-attribute name="content_body" value=""/>
+		<put-attribute name="footer" value="/WEB-INF/views/heedo/main/footer.jsp"/>
+	</definition>
+	
+	<!-- 장바구니. -->
+	<definition name=".cart" template="/WEB-INF/views/heedo/layout/cartlayout.jsp">
+		<put-attribute name="header" value="/WEB-INF/views/heedo/main/header.jsp"/>
+		<put-attribute name="content_header" value="/WEB-INF/views/heedo/pay/content_header/content_header_cart.jsp"/>
+		<put-attribute name="content_body" value="/WEB-INF/views/heedo/pay/content_body/content_body.jsp"/>
+		<put-attribute name="footer" value="/WEB-INF/views/heedo/main/footer.jsp"/>
+	</definition>
+	<!-- ///////////////////////////////////////////////////////////////////// -->
+	
+	<!-- //////////////////////지민//////////////////////////////////////////// -->
+	<definition name=".list1" extends=".main">
+		<put-attribute name="content" value="/WEB-INF/views/jimin/cate1.jsp"/>
+	</definition>
+	<definition name=".list2" extends=".main">
+		<put-attribute name="content" value="/WEB-INF/views/jimin/cate2.jsp"/>
+	</definition>
+	
+	<definition name=".*.*.*" extends=".main">		
+		<put-attribute name="content" value="/WEB-INF/views/jimin/{1}/{2}/{3}.jsp"/>				
+	</definition>
+	<definition name=".*.*" extends=".main">		
+		<put-attribute name="content" value="/WEB-INF/views/jimin/{1}/{2}.jsp"/>				
+	</definition>
+	<!-- ////////////////////////////////////////////////////////////////////////////// -->
+</tiles-definitions>

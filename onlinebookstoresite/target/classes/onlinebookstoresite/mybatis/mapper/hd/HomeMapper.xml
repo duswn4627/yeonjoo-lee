@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mybatis.mapper.HomeMapper">
+	 <!-- 홈화면 베스트셀러. -->
+	<select id="bestlist" resultType="homebest" parameterType="hashmap">
+	select * from (
+    	select abc.*,rownum rnum from
+    	(
+    		select books.*,imgsavefilename from 
+    			(select * from books)books ,(select * from img where btype=1 and thumbnail=1)img1
+   			 where books.bnum=img1.bnum
+   			order by bhit desc
+    	)abc
+	)
+	<![CDATA[where rnum>=#{startRow} and rnum<=#{endRow} ]]>
+	</select>
+	<!--  신간 리스트  -->
+	<select id="newlist" resultType="homebest" parameterType="hashmap">
+	select * from (
+    	select abc.*,rownum rnum from
+    	(
+    		select books.*,imgsavefilename from 
+    			(select * from books)books ,(select * from img where btype=1 and thumbnail=1)img1
+   			 where books.bnum=img1.bnum
+   			order by bregdate desc
+    	)abc
+	)
+	<![CDATA[where rnum>=#{startRow} and rnum<=#{endRow} ]]>
+	</select>
+</mapper>

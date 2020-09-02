@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jhta.mybatis.mapper.OldbooksMapper.jh">
+	<!-- 중고책 상품등록을 위한 MapperFile -->
+	<!-- 대분류 카테고리 가져오기 -->
+	<select id="getBigcate" resultType="bigcategory">
+		select * from bigcategory
+	</select>
+	
+	<!-- 소분류 카테고리 가져오기 -->
+	<select id="getSmallcate" resultType="smallcategory"
+		parameterType="int">
+		select * from smallcategory where bcatenum=#{bcatenum}
+	</select>
+	
+	<!-- 중고책상품 등록하기 -->
+	<insert id="insertProd" parameterType="oldbooks">
+		insert into oldbooks values(SEQ_OLDBOOKS_OBNUM.nextval,#{snum},#{selleraddr},#{obname},#{obwriter},
+		#{obpublisher},#{obpdate},#{obstatus},#{oborgprice},#{obsaleprice},#{obdetail},#{obdelfee},
+		0,0,#{scatenum},sysdate)
+	</insert>
+	
+	<!-- 이미지 등록을 위한 중고책번호 가져오기 -->
+	<select id="getObnum" resultType="int">
+		select max(obnum) obnum from oldbooks ORDER BY obnum desc
+	</select>
+	
+	<!-- 중고책 상품등록시 이미지 등록(썸네일) -->
+	<insert id="insertObimgThum" parameterType="img">
+		insert into img values(#{imgorgfilename},seq_img_imgnum.nextval,#{imgsavefilename},
+		1,2,#{bnum})
+	</insert>
+	
+	<!-- 중고책 상품등록시 이미지 등록(일반) -->
+	<insert id="insertObimg" parameterType="img">
+		insert into img values(#{imgorgfilename},seq_img_imgnum.nextval,#{imgsavefilename},
+		0,2,#{bnum})
+	</insert>
+</mapper>

@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jhta.mybatis.mapper.SellerSalesManagementMapper.jh">
+	<!-- //*판매관리 관련 Mapper설정파일*// -->
+	
+	<!-- 입금대기중 검색조건 -->
+	<sql id="search">
+		<if test="startDay!=null and startDay!=''">
+			<![CDATA[
+				and borderdate >= to_date(#{startDay},'yyyy-mm-dd') and borderdate <= to_date(#{endDay},'yyyy_mm_dd')+0.99999
+			]]>
+		</if>
+		<if test='field1=="obname"'>
+			and o.obname like '%'||#{keyword1,jdbcType=VARCHAR}||'%'
+		</if>
+		<if test='field1=="mname"'>
+			and m.mname like '%'||#{keyword1,jdbcType=VARCHAR}||'%'
+		</if>
+		<if test='field1=="receiver"'>
+			and b.receiver like '%'||#{keyword1,jdbcType=VARCHAR}||'%'
+		</if>
+		<if test='field1=="all" and keyword1!=null and keyword1 !=""'>
+			and (o.obname like '%'||#{keyword1,jdbcType=VARCHAR}||'%' 
+			or m.mname like '%'||#{keyword1,jdbcType=VARCHAR}||'%' 
+			or b.receiver like '%'||#{keyword1,jdbcType=VARCHAR}||'%')
+		</if>
+	</sql>
+	<!-- 입금완료/배송요청 검색조건 -->
+	<sql id="search2">
+		<if test="startDay2!=null and startDay2!=''">
+			<![CDATA[
+				and bpaydate >= to_date(#{startDay2},'yyyy-mm-dd') and bpaydate <= to_date(#{endDay2},'yyyy_mm_dd')+0.99999
+			]]>
+		</if>
+		<if test='field2=="obname"'>
+			and o.obname like '%'||#{keyword2,jdbcType=VARCHAR}||'%'
+		</if>
+		<if test='field2=="mname"'>
+			and m.mname like '%'||#{keyword2,jdbcType=VARCHAR}||'%'
+		</if>
+		<if test='field2=="receiver"'>
+			and b.receiver like '%'||#{keyword2,jdbcType=VARCHAR}||'%'
+		</if>
+		<if test='field2=="all" and keyword2!=null and keyword2 !=""'>
+			and (o.obname like '%'||#{keyword2,jdbcType=VARCHAR}||'%' 
+			or m.mname like '%'||#{keyword2,jdbcType=VARCHAR}||'%' 
+			or b.receiver like '%'||#{keyword2,jdbcType=VARCHAR}||'%')
+		</if>
+	</sql>
+	<!-- 배송중/구매확정전 -->
+	<sql id="search3">
+		<if test="startDay3!=null and startDay3!=''">
+			<![CDATA[
+				and bpaydate >= to_date(#{startDay3},'yyyy-mm-dd') and bpaydate <= to_date(#{endDay3},'yyyy_mm_dd')+0.99999
+			]]>
+		</if>
+		<if test='field3=="obname"'>
+			and o.obname like '%'||#{keyword3,jdbcType=VARCHAR}||'%'
+		</if>
+		<if test='field3=="mname"'>
+			and m.mname like '%'||#{keyword3,jdbcType=VARCHAR}||'%'
+		</if>
+		<if test='field3=="receiver"'>
+			and b.receiver like '%'||#{keyword3,jdbcType=VARCHAR}||'%'
+		</if>
+		<if test='field3=="all" and keyword3!=null and keyword3 !=""'>
+			and (o.obname like '%'||#{keyword3,jdbcType=VARCHAR}||'%' 
+			or m.mname like '%'||#{keyword3,jdbcType=VARCHAR}||'%' 
+			or b.receiver like '%'||#{keyword3,jdbcType=VARCHAR}||'%')
+		</if>
+	</sql>
+	<!-- 구매확정/정산대기 리스트 -->
+	<sql id="search4">
+		<if test="startDay4!=null and startDay4!=''">
+			<![CDATA[
+				and bpaydate >= to_date(#{startDay4},'yyyy-mm-dd') and bpaydate <= to_date(#{endDay4},'yyyy_mm_dd')+0.99999
+			]]>
+		</if>
+		<if test='field4=="obname"'>
+			and o.obname like '%'||#{keyword4,jdbcType=VARCHAR}||'%'
+		</if>
+		<if test='field4=="mname"'>
+			and m.mname like '%'||#{keyword4,jdbcType=VARCHAR}||'%'
+		</if>
+		<if test='field4=="receiver"'>
+			and b.receiver like '%'||#{keyword4,jdbcType=VARCHAR}||'%'
+		</if>
+		<if test='field4=="all" and keyword4!=null and keyword4 !=""'>
+			and (o.obname like '%'||#{keyword4,jdbcType=VARCHAR}||'%' 
+			or m.mname like '%'||#{keyword4,jdbcType=VARCHAR}||'%' 
+			or b.receiver like '%'||#{keyword4,jdbcType=VARCHAR}||'%')
+		</if>
+	</sql>
+	<resultMap type="obsalesjoin" id="obsalesjoin">
+		<result column="bpaynum" property="bpaynum"/>
+		<result column="snum" property="snum"/>
+		<result column="btype" property="btype"/>
+		<result column="bcount" property="bcount"/>
+		<result column="baddr" property="baddr"/>
+		<result column="bphone" property="bphone"/>
+		<result column="bfinalmoney" property="bfinalmoney"/>
+		<result column="borderdate" property="borderdate"/>
+		<result column="bpaydate" property="bpaydate"/>
+		<result column="bstatus" property="bstatus"/>
+		<result column="ordermoney" property="ordermoney"/>
+		<result column="methodpayment" property="methodpayment"/>
+		<result column="receiver" property="receiver"/>
+		<result column="mnum" property="mnum"/>
+		<result column="delfee" property="delfee"/>
+		<result column="mname" property="mname"/>
+		<collection property="sellerOldbooksVo"	ofType="oldbooks">
+			<result property="obname" column="obname"/>
+			<result property="obsaleprice" column="obsaleprice"/>
+			<result property="obnum" column="obnum"/>
+		</collection>
+	</resultMap>
+	<!-- 입금대기중 리스트 가져오기 -->
+	<select id="getSalesList" parameterType="hashmap" resultMap="obsalesjoin">
+		    select * from(
+	            select b.bpaynum BPAYNUM, o.SNUM SNUM, p.BTYPE BTYPE, p.BCOUNT BCOUNT, 
+                    b.BADDR BADDR, b.BPHONE BPHONE, b.BFINALMONEY BFINALMONEY, b.BORDERDATE BORDERDATE, b.BPAYDATE BPAYDATE, 
+                    b.BSTATUS BSTATUS, b.ORDERMONEY ORDERMONEY, b.methodpayment METHODPAYMENT, b.RECEIVER RECEIVER, 
+                    b.MNUM MNUM, b.DELFEE DELFEE,m.mname MNAME, o.obname OBNAME,o.obsaleprice OBSALEPRICE,o.obnum OBNUM
+	                from paymentbook p,( select * from
+                    (
+                    select * from(
+                        select a.*,rownum r from
+                        (
+                            select *
+                            from bpayment where bpaynum in 
+                             (select distinct(pay) from (
+                                select bp.bpaynum pay from 
+                                bpayment b,oldbooks o,paymentbook bp,members m 
+                                where o.snum=#{snum} and b.bstatus=#{bstatus} and b.bpaynum=bp.bpaynum 
+                                and bp.bnum=o.obnum and m.mnum=b.mnum
+                                <include refid="search"></include>
+                                <include refid="search2"></include>
+                                <include refid="search3"></include>
+                                order by b.borderdate desc  
+                             ) 
+                           )
+                        )a
+	    <![CDATA[
+                    )where r>=#{startRow} and r<=#{endRow} ) )b, oldbooks o,members m 
+	            where b.bpaynum=p.bpaynum and p.btype=2 and p.bnum=o.obnum and b.mnum=m.mnum     
+	           )
+		]]>
+	</select>
+	
+	<!-- 페이징처리:전체 행(입금대기중) -->
+	<select id="getTotRowCount" parameterType="hashmap" resultType="int">
+		select count(DISTINCT(b.bpaynum)) count 
+		from bpayment b, paymentbook bp, oldbooks o, members m 
+		where b.bpaynum=bp.bpaynum and bp.bnum=o.obnum and b.mnum=m.mnum and snum=#{snum} and b.bstatus=#{bstatus}
+		<include refid="search"></include>
+		<include refid="search2"></include>
+		<include refid="search3"></include>
+		<include refid="search4"></include>
+	</select>
+	
+	<!-- 출고처리 -->
+	<update id="goShipping" parameterType="int">
+		update bpayment set bstatus=2 where bpaynum=#{bpaynum}
+	</update>
+	
+	<!-- 구매확정/정산대기 리스트 -->	
+	<resultMap type="obfeepayjoin" id="obfeepayjoin">
+		<result column="bpaynum" property="bpaynum"/>
+		<result column="snum" property="snum"/>
+		<result column="btype" property="btype"/>
+		<result column="bcount" property="bcount"/>
+		<result column="baddr" property="baddr"/>
+		<result column="bphone" property="bphone"/>
+		<result column="bfinalmoney" property="bfinalmoney"/>
+		<result column="borderdate" property="borderdate"/>
+		<result column="bpaydate" property="bpaydate"/>
+		<result column="bstatus" property="bstatus"/>
+		<result column="ordermoney" property="ordermoney"/>
+		<result column="methodpayment" property="methodpayment"/>
+		<result column="receiver" property="receiver"/>
+		<result column="mnum" property="mnum"/>
+		<result column="delfee" property="delfee"/>
+		<result column="mname" property="mname"/>
+		<result column="obcnum" property="obcnum"/>
+		<result column="feepay" property="feepay"/>
+		<result column="settlement" property="settlement"/>
+		<result column="feedate" property="feedate"/>
+		<result column="bocomstatus" property="bocomstatus"/>
+		<collection property="sellerOldbooksVo"	ofType="oldbooks">
+			<result property="obname" column="obname"/>
+			<result property="obsaleprice" column="obsaleprice"/>
+			<result property="obnum" column="obnum"/>
+		</collection>
+	</resultMap>
+	
+	
+	<!-- 구매확정/정산대기 리스트 -->	
+	<select id="getSalesFeeList" parameterType="hashmap" resultMap="obfeepayjoin">
+		    select * from(
+	            select b.bpaynum BPAYNUM, o.SNUM SNUM, p.BTYPE BTYPE, p.BCOUNT BCOUNT, 
+                    b.BADDR BADDR, b.BPHONE BPHONE, b.BFINALMONEY BFINALMONEY, b.BORDERDATE BORDERDATE, b.BPAYDATE BPAYDATE, 
+                    b.BSTATUS BSTATUS, b.ORDERMONEY ORDERMONEY, b.METHODPAYMENT METHODPAYMENT, b.RECEIVER RECEIVER, 
+                    b.MNUM MNUM, b.DELFEE DELFEE,m.mname MNAME, ob.obcnum OBCNUM, ob.feepay FEEPAY, ob.settlement SETTLEMENT, 
+                    ob.feedate FEEDATE,ob.bocomstatus BOCOMSTATUS,
+                    o.obname OBNAME,o.obsaleprice OBSALEPRICE,o.obnum OBNUM
+	                from paymentbook p,( select * from
+                    (
+                    select * from(
+                        select a.*,rownum r from
+                        (
+                            select *
+                            from bpayment where bpaynum in 
+                             (select distinct(pay) from (
+                                select bp.bpaynum pay from 
+                                bpayment b,oldbooks o,paymentbook bp,members m, obcomplete ob 
+                                where o.snum=#{snum} and b.bstatus=#{bstatus} and b.bpaynum=bp.bpaynum 
+                                and bp.bnum=o.obnum and m.mnum=b.mnum and bp.paymentbook_num=ob.paymentbook_num and ob.bocomstatus=0
+                                <include refid="search4"></include>
+                                order by b.borderdate desc  
+                             ) 
+                           )
+                        )a
+	    <![CDATA[
+                    )where r>=#{startRow} and r<=#{endRow} ) )b, oldbooks o,members m, obcomplete ob, paymentbook bp
+	            where b.bpaynum=p.bpaynum and p.btype=2 and p.bnum=o.obnum and b.mnum=m.mnum and bp.paymentbook_num=ob.paymentbook_num    
+	           )
+		]]>
+	</select>
+	
+	<!-- 페이징처리:전체 행(구매확정/정산대기) -->
+	<select id="getFeeTotRowCount" parameterType="hashmap" resultType="int">
+		select count(DISTINCT(b.bpaynum)) count 
+		from bpayment b, paymentbook bp, oldbooks o, members m, obcomplete ob  
+		where b.bpaynum=bp.bpaynum and bp.bnum=o.obnum and b.mnum=m.mnum and snum=#{snum} and b.bstatus=#{bstatus}
+		and ob.bocomstatus=0 and bp.paymentbook_num=ob.paymentbook_num
+		<include refid="search4"></include>
+	</select>
+	
+	
+</mapper>

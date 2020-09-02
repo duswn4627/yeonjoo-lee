@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace = "com.jhta.yr.mybatis.mapper.ShipMapper">
+	<select id = "shipCount" resultType = "Hashmap">
+		select bstatus, count(*) count from bpayment group by bstatus order by bstatus
+	</select>
+	
+	<update id="updateBeforeToPreparing" parameterType="list">
+		update bpayment set bstatus = 1 , bpaydate = sysdate where
+		<foreach collection="list" item = "bpaynum" separator="or">
+	 	  bpaynum = #{bpaynum} 
+		</foreach>	
+	</update>
+	
+<!-- 	중고책 status결제완료로 업데이트 -->
+	<update id = "updateObsalestatus" parameterType="int" >
+		update oldbooks set obsalestatus = 2 where obnum = #{obnum}
+	</update>
+	
+<!-- 	중고책인지 아닌지 -->
+	<select id="getBookList" parameterType="int" resultType="hashmap">
+	    select btype, bnum
+	    from bpayment, paymentbook
+	    where bpayment.bpaynum = paymentbook.bpaynum
+	    and bpayment.bpaynum = #{bpaynum}
+	</select>
+	
+<!-- 	bstatus상태 바꾸기(배송준비중 , 배송 완료)	 -->
+	<update id="updateBstatus" parameterType="hashmap">
+		update bpayment set bstatus = #{bstatus} where
+		<foreach collection="bpaynum" item = "bpaynum" separator="or">
+	 	  bpaynum = #{bpaynum} 
+		</foreach>	
+	</update>
+	
+	<select id="getBookPoint" parameterType="int" resultType="int">
+		select nvl(sum(point),0) sum from paymentbook where bpaynum = #{bpaynum}
+	</select>
+		
+	<insert id="pointPlus" parameterType="pointVo">
+		insert into point values (#{mnum}, #{bpaynum}, #{tranpoint}, sysdate)
+	</insert>
+	
+	<select id="getMnum" resultType="int" parameterType="int">
+		select mnum from bpayment where bpaynum = #{bpaynum}
+	</select>
+	
+</mapper>

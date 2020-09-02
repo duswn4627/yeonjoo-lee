@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+  <!-- Vo알리아스 설정내용 -->
+<typeAliases>
+	<!-- ///지호 ////-->
+	<typeAlias type="com.jhta.finalproject.jh.vo.SellerBigcategoryVo" alias="bigcategory"/>
+	<typeAlias type="com.jhta.finalproject.jh.vo.SellerSmallcategoryVo" alias="smallcategory"/>
+	<typeAlias type="com.jhta.finalproject.jh.vo.SellerOldbooksVo" alias="oldbooks"/>
+	<typeAlias type="com.jhta.finalproject.jh.vo.SellerImgVo" alias="img"/>
+ 	<!-- /////// -->
+ 	
+ 	<!-- ////희도//// -->
+  	<typeAlias type="com.jhta.finalproject.hd.vo.HomeBestVo" alias="homebest"/>
+  	<typeAlias type="com.jhta.finalproject.hd.vo.CartListVo" alias="cartview"/>
+  	<!-- /////////// -->
+  	
+	<!-- ////지민///// -->
+	<typeAlias type="com.jhta.finalproject.jm.vo.BooksVo" alias="books"/> <!-- books라고 줄여쓰겠다. -->
+		<typeAlias type="com.jhta.finalproject.jm.vo.BigcateVo" alias="bigcate"/>
+		<typeAlias type="com.jhta.finalproject.jm.vo.SmallcateVo" alias="smallcate"/>
+	<!-- /////////////// -->
+</typeAliases>
+  <mappers>
+  	<!-- ////지호///// -->
+    <mapper resource="onlinebookstoresite/mybatis/mapper/jh/OldbooksMapper.xml"/>
+    <mapper resource="onlinebookstoresite/mybatis/mapper/jh/SellerProdLookMapper.xml"/>
+  
+  	<!-- ////희도//// -->
+  	<mapper resource="onlinebookstoresite/mybatis/mapper/hd/HomeMapper.xml"/>
+    <mapper resource="onlinebookstoresite/mybatis/mapper/hd/CartMapper.xml"/>
+    
+    <!-- ////지민//// -->
+    <mapper resource="onlinebookstoresite/mybatis/mapper/jm/BooksMapper.xml"/>
+
+  </mappers>
+</configuration>

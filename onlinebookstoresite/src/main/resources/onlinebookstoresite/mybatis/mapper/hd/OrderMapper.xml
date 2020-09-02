@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mybatis.mapper.OrderMapper">
+	<!--//////////// 주문완료 관련 트랜잭션 DML 시작 ////////////-->
+		
+		<!-- 주문결제 테이블에 추가 -->
+		<insert id="bpayment" parameterType="hashmap">
+			insert into bpayment values(SEQ_bpayment_bpaynum.nextval,#{shipaddr},#{callnum},#{pay_price_noshipfee},sysdate,
+											<choose>
+												<when test="method=='card'">sysdate,1</when>
+												<otherwise>'',0</otherwise>
+											</choose>
+											,#{orderprice},#{usepoint},
+											<choose>
+											<when test="method=='card'">0</when>
+											<otherwise>1</otherwise>
+											</choose>
+										    ,#{receiver},#{shipCharge},#{mnum})
+		</insert>
+		<!-- 방금 추가한 데이터 주문번호 가져오기. -->
+		<select id="getbpayNum" resultType="int">
+			select SEQ_bpayment_bpaynum.currval from dual
+		</select>
+		
+		<!-- 해당주문의 주문한책데이터 추가. -->
+		<insert id="paymentbook" parameterType="hashmap">
+			insert into paymentbook values(SEQ_paymentbook_num.nextval,#{bpaynum},
+											<choose>
+											<when test="separate=='new'">1</when>
+											<otherwise>2</otherwise>
+											</choose>
+											,#{bnum},#{bcount},#{point})
+		</insert>
+		<!-- 새책테이블에서 원래 수량 구하기 -->
+		<select id="books_bcount" parameterType="hashmap" resultType="int">
+			select bcount from books where bnum=#{bnum}
+		</select>
+		<!-- 새책테이블에서 수량변경  -->
+		<update id="change_count" parameterType="hashmap">
+			update books set bcount=#{changebcount} where bnum=#{bnum}
+		</update>
+		<!--  중고책테이블에서 중고책 상태변경 -->
+		<update id="change_salestatus" parameterType="hashmap">
+			update oldbooks set obsalestatus=<choose>
+											<when test="method=='card'">2</when>
+											<otherwise>1</otherwise>
+											</choose>
+											where obnum in 	
+											<foreach collection="bnum" item="item" index="index" open="(" close=")" separator=",">
+												#{item}
+											</foreach>
+		</update>
+		<!-- 포인트사용 -->
+		<insert id="use_point" parameterType="hashmap">
+			insert into point values(#{mnum},#{bpaynum},#{usedpoint},sysdate)
+		</insert>
+		
+		<!-- 포인트적립 -->
+		<insert id="point_plus" parameterType="hashmap">
+			insert into point values(#{mnum},#{bpaynum},#{totalpoint},sysdate)
+		</insert>
+		
+		<!-- 주문/결제완료후 장바구니 존재시 장바구니에서 삭제 -->
+		<delete id="delete_cart" parameterType="hashmap">
+			delete from cart where cartnum in
+			<foreach collection="cartNum" item="item" index="index" open="(" close=")" separator=",">
+				#{item}
+			</foreach>
+		</delete>
+		<!-- 가상계좌 선택시 가상계좌테이블에 계좌정보 입력. -->
+		<insert id="vbank" parameterType="hashmap">
+			insert into vbank values(#{bpaynum},#{vbank_name},#{vbank_num},#{vbank_holder})
+		</insert>		
+		
+	<!--//////////// 주문완료 관련 트랜잭션 DML 끝 /////////////-->
+	
+	<!-- 주문번호받아서 주문에대한 정보 받아옴 -->
+	<select id="complete_info" parameterType="int" resultType="completeVo">
+		select baddr addr,receiver,bpaynum ordernum,bfinalmoney paymentmoney
+		,usedpoint,delfee from bpayment where bpaynum=#{bpaynum}
+	</select>
+	<!-- 해당회원번호를 가진 회원의 이름 -->
+	<select id="getName" parameterType="int" resultType="string">
+		select mname from members where mnum=#{mnum}
+	</select>
+	<!-- 해당주문번호에 해당하는 주문한책들. -->
+	<select id="getPaymentBook" parameterType="int" resultType="completeList" >
+		select books.bnum,imgsavefilename,btitle,bprice,bpoint,paymentbook.bcount from
+		(select * from paymentbook where bpaynum=#{bpaynum})paymentbook,
+		(select * from books)books,
+		(select * from img where btype=1 and thumbnail=1)img
+		where paymentbook.bnum=books.bnum and books.bnum=img.bnum
+	</select>
+	<!-- 해당주문번호에 해당하는 중고 책들.. -->
+	<select id="getUsedPaymentBook" parameterType="int" resultType="usedcompleteList">
+		select ob.obnum bnum,imgsavefilename,obname,oborgprice,obstatus,obsaleprice,paymentbook.bcount,mid sid from
+		(select * from paymentbook where bpaynum=#{bpaynum})paymentbook,
+		(select * from oldbooks) ob,
+		(select * from img where btype=2 and thumbnail=1)img,
+		(select * from members) members,
+		(select * from obseller) obs
+		where paymentbook.bnum=ob.obnum and ob.obnum=img.bnum and ob.snum=obs.snum and obs.mnum=members.mnum
+	</select>
+	
+	<select id="vbank_info" parameterType="int" resultType="vbankVo">
+		select * from vbank where bpaynum=#{bpaynum}
+	</select>
+	
+	<!-- 중고상품 장바구니->주문페이지 SELECT 문 -->
+	<select id="usedorderlist" parameterType="hashmap" resultType="usedOrderVo">
+		select cartnum,cart.bnum,cart.btype,cart.bcount,obname,obstatus,oborgprice,obsaleprice,obdelfee,members.mid sid,members.mnum smnum,imgsavefilename from 
+		(select * from cart where btype=2 and cartnum in
+			<foreach collection="datalist" item="item" index="index" open="(" close=")" separator=",">
+				#{item}
+			</foreach>
+		)cart,
+		(select * from oldbooks)ob,
+		(select * from obseller)obs,
+		(select * from img where btype=2 and thumbnail=1) img,
+		(select * from members) members 
+		where cart.bnum=ob.obnum and cart.bnum=img.bnum and ob.snum=obs.snum and obs.mnum=members.mnum
+		order by sid desc
+	</select>
+	<select id="directusedorder" parameterType="int" resultType="usedOrderVo">
+		select obnum bnum,img.btype,obname,obstatus,oborgprice,obsaleprice,obdelfee,members.mid sid,members.mnum smnum,imgsavefilename
+		from
+		(select * from oldbooks where obnum=#{obnum})ob,
+		(select * from obseller)obs,
+		(select * from img where btype=2 and thumbnail=1) img,
+		(select * from members)members
+		where ob.obnum = img.bnum and ob.snum=obs.snum and obs.mnum=members.mnum
+	</select>
+ 	<!-- 장바구니 -> 주문페이지 갈때 사용하는 SELECT 문  -->
+	<select id="orderlist" parameterType="hashmap" resultType="orderVo">
+		select btitle,book.bnum,bprice,bpoint, imgsavefilename,cartNum,cart.bcount from
+		(select * from cart where btype=1 and cartnum in
+		<foreach collection="datalist" item="item" index="index" open="(" close=")" separator=",">
+			#{item}
+		</foreach>
+		)cart,
+		(select * from books) book,
+		(select * from img where THUMBNAIL=1 and btype=1)img
+		where cart.bnum=book.bnum and book.bnum=img.bnum
+	</select>
+	<!-- 상품페이지,리스트에서 바로 구매하기 버튼 클릭 -->
+	<select id="directorder" parameterType="int" resultType="orderVo">
+		select btitle,book.bnum,bprice,bpoint,imgsavefilename from
+		(select * from books) book,(select * from img where thumbnail=1 and btype=1)img
+		where book.bnum=img.bnum and book.bnum=#{bnum}
+	</select>
+	<!-- 주문페이지에서 배송지 SELECT 함 -->
+	<select id="getAddr" parameterType="int" resultType="shipVo">
+		select addr,phone,mname,mnum from members where mnum=#{mnum}
+	</select>
+	
+	<!-- 주문페이지에서 사용가능한 포인트 -->
+	<select id="usablepoint" parameterType="int" resultType="int">
+		select nvl(sum(tranpoint),0) from point where mnum=#{mnum}
+	</select>
+</mapper>
+

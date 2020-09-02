@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jhta.yr.mybatis.mapper.DepositMapper">
+	
+	<sql id="sestatusKinds">
+		<if test="@com.jhta.finalproject.yr.mybatischeck.MybatisCheck@notEmpty(sestatus)">
+			and sestatus = #{sestatus}
+		</if>
+		
+	</sql>
+	
+	<sql id = "search">
+		<!-- 주문일, 접수일 -->
+		<if test="@com.jhta.finalproject.yr.mybatischeck.MybatisCheck@notEmpty(tfield)">
+			 and TRUNC(${tfield}) BETWEEN TO_DATE(#{startDate}) AND TO_DATE(#{endDate})
+		</if>
+		<!-- 		처리상태 -->
+		<if test="@com.jhta.finalproject.yr.mybatischeck.MybatisCheck@notEmpty(status)">
+			and sestatus in
+			<foreach collection="status" item="bs" open="(" close=")" separator=",">
+				<if test="status != -1">
+				#{bs,jdbcType=VARCHAR}	
+				</if>
+			</foreach>
+		</if>
+		
+		<!-- 	    회원상태 -->
+		<if test="@com.jhta.finalproject.yr.mybatischeck.MybatisCheck@notEmpty(mType)">
+			<if test="mType == 2">
+				and bpayment.mnum = 0  						
+			</if>						
+			<if test="mType == 1">
+				and bpayment.mnum != 0  						
+			</if>				
+	    </if>
+	</sql>
+
+	<select id="settlementList" resultType="SettlementJoinVo" parameterType="hashmap" >
+	
+<!-- 		select * from settlement, account, members where settlement.anum = account.anum and account.mnum = members.mnum -->
+<!-- 		<include refid="sestatusKinds"/> -->
+<!-- 		<include refid="search"/> -->
+<!-- 		 order by sestatus, appdate -->
+		select * from		
+		(
+			select aa.*, rownum rnum from 
+			(
+                select settlement.SENUM, SESTATUS,REQMONEY,APPDATE,COMDATE , account.*, members.mname
+                from settlement, account, members
+                where settlement.anum = account.anum and account.mnum = members.mnum 
+                <include refid="sestatusKinds"/>
+				<include refid="search"/>
+				order by settlement.SESTATUS , appdate 
+			)aa
+		)
+		<if test="@com.jhta.finalproject.yr.mybatischeck.MybatisCheck@notEmpty(startRow)">
+            <![CDATA[where rnum >= #{startRow} and rnum <= #{endRow}]]>
+        </if>
+	</select>
+	
+<!-- 	갯수세기 -->
+	<select id="getCount" resultType="int" parameterType="hashmap">
+		select nvl(count(*),0) count
+        from settlement, account, members
+        where settlement.anum = account.anum and account.mnum = members.mnum 
+	    <include refid="sestatusKinds"/>
+		<include refid="search"/>
+	</select>
+	
+<!-- 	예치금 돈으로 환산 후 처리 결과  업데이트-->
+	<update id = "updateSestatus" parameterType="int">
+		update settlement set sestatus = 1,  comdate = sysdate where senum = #{senum}
+	</update>
+	
+<!-- 	dnum가지고 오기	 -->
+	<select id="getDnum" parameterType="int" resultType="int">
+		select dnum from settlement where senum = #{senum}
+	</select>
+	
+<!-- 	deposit상태 업테이트 하기 -->
+	<update id = "updateDeposit" parameterType="int">
+		update deposit set dereason = 3 where dnum = #{dnum} 
+	</update>
+	
+
+
+</mapper>

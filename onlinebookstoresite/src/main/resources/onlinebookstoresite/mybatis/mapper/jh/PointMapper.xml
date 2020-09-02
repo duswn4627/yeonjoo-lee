@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jhta.mybatis.mapper.PointMapper.jh">
+
+	<!-- 회원의 현재 총 포인트 -->
+	<select id="getTotPoint" resultType="int" parameterType="int">
+		select nvl(SUM(tranpoint),0) totpoint from point where mnum=#{mnum}
+	</select>
+	<!-- 회원등급 -->
+	<select id="getGrade" resultType="string" parameterType="int">
+		select case when grade='0' then '일반'
+          			when grade='1' then '실버'
+            		when grade='2' then '골드' end grade
+		from members where mnum=#{mnum}
+	</select>
+	
+	<!-- 회원 포인트 리스트 -->
+	<select id="getPointList" resultType="point" parameterType="hashmap">
+		select mnum,bpaynum,tranpoint,pregdate 
+		from(
+		    select a.*,rownum rnum 
+		    from (
+		        select * 
+		        from point 
+		        where mnum=#{mnum} and tranpoint NOT in(0) and
+		        <![CDATA[
+		        TO_CHAR(pregdate,'yyyy/mm/dd') >= TO_CHAR(TO_DATE(#{startDay},'yyyy/mm/dd'),'yyyy/mm/dd') AND
+				TO_CHAR(pregdate,'yyyy/mm/dd') <= TO_CHAR(TO_DATE(#{endDay},'YYYY/MM/DD'),'YYYY/MM/DD')
+				]]>
+		        order by pregdate desc)a)
+		<![CDATA[
+		where rnum>=#{startRow} and rnum<=#{endRow}
+		]]>
+	</select>
+	<!-- 포인트 총 갯수 -->
+	<select id="getRowPointCount" resultType="int" parameterType="hashmap">
+		select nvl(count(*),0) count from point where mnum=#{mnum} and tranpoint NOT in(0) and 
+		<![CDATA[
+		        TO_CHAR(pregdate,'yyyy-mm-dd') >= TO_CHAR(TO_DATE(#{startDay},'yyyy-mm-dd'),'yyyy-mm-dd') AND
+				TO_CHAR(pregdate,'yyyy-mm-dd') <= TO_CHAR(TO_DATE(#{endDay},'YYYY-MM-DD'),'YYYY-MM-DD')
+		]]>
+	</select>
+</mapper>

@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mybatis.mapper.MyPageMapper">
+	<select id="orderhistory" parameterType="hashmap" resultType="historyVo">
+		select * from(
+		SELECT aa.*,rownum rnum FROM (
+		select bpayment.bpaynum ordernum,borderdate,bfinalmoney,delfee,bstatus,mname,receiver,btype from
+		(select TO_DATE(borderdate,'YY/MM/DD') borderdate,bpaynum,bfinalmoney,delfee,bstatus,receiver,mnum from bpayment where mnum=#{mnum} and 
+		<![CDATA[TO_CHAR(BORDERDATE,'YY/MM/DD') >= TO_CHAR(TO_DATE(#{startDay},'YY/MM/DD'),'YY/MM/DD') AND TO_CHAR(BORDERDATE,'YY/MM/DD')<= TO_CHAR(TO_DATE(#{endDay},'YY/MM/DD'),'YY/MM/DD')]]>
+		and 
+		<choose>
+			<when test="value=='returnall'">
+				<![CDATA[bstatus>=4 and bstatus<6]]>
+			</when>
+			<when test="value=='apply'">
+				bstatus=4
+			</when>
+			<when test="value=='complete'">
+				bstatus=5
+			</when>
+			<otherwise>
+				bstatus=6
+			</otherwise>
+		</choose>
+		)bpayment,			
+		(select * from members)members,
+		 (select bpaynum,max(btype) btype from 
+            paymentbook 
+            group by bpaynum 
+            having max(btype)=
+            <choose>
+	        	<when test="separate=='new'">
+	        	1
+	        	</when>
+	        	<otherwise>
+	        	2
+	        	</otherwise>
+        	</choose>
+            )pb
+		where members.mnum=bpayment.mnum and pb.bpaynum=bpayment.bpaynum
+		order by borderdate desc
+		) aa
+		)
+		<![CDATA[where rnum>=#{startRow} and rnum<=#{endRow}]]>
+	</select>
+	<select id="countHistory" parameterType="hashmap" resultType="int">
+		select NVL(count(*),0) from
+		(select TO_DATE(borderdate,'YY/MM/DD') borderdate,bpaynum,bfinalmoney,delfee,bstatus,receiver,mnum from bpayment where mnum=#{mnum} and 
+		<![CDATA[TO_CHAR(BORDERDATE,'YY/MM/DD') >= TO_CHAR(TO_DATE(#{startDay},'YY/MM/DD'),'YY/MM/DD') 
+			AND TO_CHAR(BORDERDATE,'YY/MM/DD')<= TO_CHAR(TO_DATE(#{endDay},'YY/MM/DD'),'YY/MM/DD')]]>
+		and	
+		<choose>
+			<when test="value=='returnall'">
+				<![CDATA[bstatus>=4 and bstatus<6]]>
+			</when>
+			<when test="value=='apply'">
+				bstatus=4
+			</when>
+			<when test="value=='complete'">
+				bstatus=5
+			</when>
+			<otherwise>
+				bstatus=6
+			</otherwise>
+		</choose>
+		)bpayment,						
+		(select * from members)members,
+		(select bpaynum,max(btype)  from 
+        paymentbook 
+        group by bpaynum 
+        having max(btype)=
+        <choose>
+        	<when test="separate=='new'">
+        	1
+        	</when>
+        	<otherwise>
+        	2
+        	</otherwise>
+        </choose>
+        )pb
+		where members.mnum=bpayment.mnum and bpayment.bpaynum=pb.bpaynum
+	</select>
+	<select id="confirmtype" parameterType="int" resultType="hashmap">
+		select btype,bnum from paymentbook where bpaynum=#{bpaynum} and rownum=1
+	</select>
+	
+	<select id="countPaymentBook" parameterType="int" resultType="int">
+		select count(*) from paymentbook where bpaynum=#{bpaynum}
+	</select>
+	
+	<select id="newBtitle" parameterType="int" resultType="string">
+		select btitle from books where bnum=#{bnum}
+	</select>
+	
+	<select id="usedTitle" parameterType="int" resultType="hashmap">
+		select obname,obstatus from oldbooks where obnum=#{bnum}
+	</select>
+	<!-- 문의내역 전체행수 구함. -->
+	<select id="countQnaHistory" parameterType="hashmap" resultType="int">
+		select NVL(count(*),0) from
+		(
+			select a.*,rownum rnum from 
+			(
+				select * from qna where mnum=#{mnum} and
+				<choose>
+				<when test="value=='process'">
+					qnastatus=0 and
+				</when>
+				<when test="value=='complete'">
+					qnastatus=1 and
+				</when>
+				</choose>
+				<![CDATA[TO_CHAR(qnadate,'yy/mm/dd') >= TO_CHAR(TO_DATE(#{startDay},'yy/mm/dd'),'yy/mm/dd') AND
+				TO_CHAR(qnadate,'yy/mm/dd') <= TO_CHAR(TO_DATE(#{endDay},'YY/MM/DD'),'YY/MM/DD')]]>
+				order by qnadate desc
+				) a
+			)aa
+		<![CDATA[where rnum>=1 and rnum<=10]]>
+	</select>
+	<select id="qnadetail" parameterType="hashmap" resultType="qnahistory">
+		select * from qna where mnum=#{mnum} and qnanum=#{qnanum}
+	</select>
+	
+	<select id="qnaAnswer" parameterType="int" resultType="qnaAnswer">
+		select * from qnaanswer where qnanum=#{qnanum}
+	</select>
+	<select id="countcart" parameterType="int" resultType="int">
+		select NVL(count(*),0) from cart where mnum=#{mnum}
+	</select>
+	
+	<!-- 문의내역 리스트 -->
+	<select id="qnaHistory" parameterType="hashmap" resultType="qnahistory">
+		select aa.* from
+		(
+			select a.*,rownum rnum from 
+			(
+				select * from qna where mnum=#{mnum} and
+				<choose>
+				<when test="value=='process'">
+					qnastatus=0 and
+				</when>
+				<when test="value=='complete'">
+					qnastatus=1 and
+				</when>
+				</choose>
+				<![CDATA[TO_CHAR(qnadate,'yy/mm/dd') >= TO_CHAR(TO_DATE(#{startDay},'yy/mm/dd'),'yy/mm/dd') AND
+				TO_CHAR(qnadate,'yy/mm/dd') <= TO_CHAR(TO_DATE(#{endDay},'YY/MM/DD'),'YY/MM/DD')]]>
+				order by qnadate desc
+				) a
+			)aa
+		<![CDATA[where rnum>=1 and rnum<=10]]>
+	</select>
+	<!-- 문의사항작성 -->
+	<insert id="qnawrite" parameterType="hashmap">
+		insert into qna values(SEQ_qna_qnanum.nextval,#{mnum},#{qnatitle},#{qnacontent},0,sysdate)
+	</insert>
+	
+	
+	<select id="countDeposithistory" parameterType="hashmap" resultType="int">
+		select NVL(count(*),0) from (
+				select * from deposit where mnum=#{mnum} and
+				<choose>
+					<when test="value=='all'">
+						dereason in(0,1,2,3,4) 
+					</when>
+					<when test="value=='sellmoney'">
+						dereason=0
+					</when>
+					<when test="value=='ordercancel'">
+						dereason=1
+					</when>
+					<when test="value=='return'">
+						dereason=2
+					</when>
+					<when test="value=='apply'">
+						dereason=4
+					</when>
+					<otherwise>
+						dereason=3
+					</otherwise>
+				</choose>
+				<![CDATA[
+					AND TO_CHAR(trandate,'YY/MM/DD') >= TO_CHAR(TO_DATE(#{startDay},'YY/MM/DD'),'YY/MM/DD') 
+					AND TO_CHAR(trandate,'YY/MM/DD')<= TO_CHAR(TO_DATE(#{endDay},'YY/MM/DD'),'YY/MM/DD')]]>
+				order by trandate desc
+				)a
+			
+		
+	</select>
+	<select id="deposithistory" parameterType="hashmap" resultType="depositHistory">
+		select aa.* from (
+			select a.*,rownum rnum from (
+				select * from deposit where mnum=#{mnum} and
+				<choose>
+					<when test="value=='all'">
+						dereason in(0,1,2,3,4) 
+					</when>
+					<when test="value=='sellmoney'">
+						dereason=0
+					</when>
+					<when test="value=='ordercancel'">
+						dereason=1
+					</when>
+					<when test="value=='return'">
+						dereason=2
+					</when>
+					<when test="value=='apply'">
+						dereason=4
+					</when>
+					<otherwise>
+						dereason=3
+					</otherwise>
+				</choose>
+				<![CDATA[
+					AND TO_CHAR(trandate,'YY/MM/DD') >= TO_CHAR(TO_DATE(#{startDay},'YY/MM/DD'),'YY/MM/DD') 
+					AND TO_CHAR(trandate,'YY/MM/DD')<= TO_CHAR(TO_DATE(#{endDay},'YY/MM/DD'),'YY/MM/DD')]]>
+				order by trandate desc
+				)a
+			)aa
+		<![CDATA[where rnum>=#{startRow} and rnum<=#{endRow}]]>
+	</select>
+	
+	<select id="countAccount" parameterType="hashmap" resultType="int">
+	select NVL(count(*),0) from (
+		select * from settlement where anum=#{anum} 
+			<![CDATA[
+			AND TO_CHAR(appdate,'YY/MM/DD') >= TO_CHAR(TO_DATE(#{startDay},'YY/MM/DD'),'YY/MM/DD') 
+			AND TO_CHAR(appdate,'YY/MM/DD')<= TO_CHAR(TO_DATE(#{endDay},'YY/MM/DD'),'YY/MM/DD')]]> AND
+			<choose>
+				<when test="value=='all'">
+					sestatus in(0,1)
+				</when>
+				<when test="value=='apply'">
+					sestatus=0
+				</when>
+				<otherwise>
+					sestatus=1
+				</otherwise>
+			</choose>
+			order by appdate desc)
+	</select>
+	<select id="accounthistory" parameterType="hashmap" resultType="acchistoryVo">
+	select * from (
+		select aa.*,rownum rnum from (
+			select * from settlement where anum=#{anum} 
+				<![CDATA[
+				AND TO_CHAR(appdate,'YY/MM/DD') >= TO_CHAR(TO_DATE(#{startDay},'YY/MM/DD'),'YY/MM/DD') 
+				AND TO_CHAR(appdate,'YY/MM/DD')<= TO_CHAR(TO_DATE(#{endDay},'YY/MM/DD'),'YY/MM/DD')]]> AND
+				<choose>
+					<when test="value=='all'">
+						sestatus in(0,1)
+					</when>
+					<when test="value=='apply'">
+						sestatus=0
+					</when>
+					<otherwise>
+						sestatus=1
+					</otherwise>
+				</choose>
+			order by appdate desc)aa
+		)
+	<![CDATA[where rnum>=#{startRow} and rnum<=#{endRow}	]]>
+	</select>
+	
+	<select id="getanum" parameterType="int" resultType="int">
+		
+	</select>	
+	<!-- 계좌번호 있는지여부 확인. -->
+	<select id="confirmacount" parameterType="int" resultType="int">
+		select NVL(count(*),0) from account where mnum=#{mnum}
+	</select>
+	<!-- 계좌등록 -->
+	<insert id="insertAccount" parameterType="hashmap">
+		insert into account values(SEQ_account_anum.nextval,#{mnum},#{bank},#{banknum})
+	</insert>
+	<!-- 계좌번호 select -->
+	<select id="selectAccount" parameterType="int" resultType="AccountVo">
+		select * from account where mnum=#{mnum}
+	</select>
+	<!-- 계좌 변경 -->
+	<update id="updateAccount" parameterType="hashmap">
+		update account set bank=#{bank},account=#{banknum} where anum=#{anum}
+	</update>
+	
+	<insert id="applydeposit" parameterType="hashmap">
+		insert into settlement values(SEQ_settlement_senum.nextval,#{anum},#{reqmoney},0,sysdate,null,#{dnum})
+	</insert>
+	<select id="getdeposit_num" resultType="int">
+		select SEQ_deposit_dnum.currval from dual
+	</select>
+	
+	<insert id="applydeposit_depositTable" parameterType="hashmap">
+		insert into deposit values(SEQ_deposit_dnum.nextval,#{mnum},null,#{applymoney},sysdate,4)
+	</insert>
+	
+	<!-- 마이페이지 메인관련 sql문 -->
+	<select id="recentorder" parameterType="int" resultType="historyVo">
+		select aaa.* from (
+			select aa.*,rownum rnum from
+			(select bp.bpaynum ordernum,borderdate,bstatus,pb.btype from
+				<![CDATA[(select * from bpayment where mnum=#{mnum} and bstatus>=0 and bstatus<=3) bp,]]>
+				(select bpaynum,max(btype) btype  from 
+    		    paymentbook 
+       			 group by bpaynum )pb
+				where pb.bpaynum=bp.bpaynum
+				order by borderdate desc)aa
+   			 )aaa
+  		 <![CDATA[where rnum>=1 and rnum<=2]]>
+	</select>
+	<select id="recentcancel" parameterType="int" resultType="historyVo">
+		select aaa.* from (
+			select aa.*,rownum rnum from
+			(select bp.bpaynum ordernum,borderdate,bstatus,pb.btype from
+				<![CDATA[(select * from bpayment where mnum=#{mnum} and bstatus=6) bp,]]>
+				(select bpaynum,max(btype) btype  from 
+    		    paymentbook 
+       			 group by bpaynum )pb
+				where pb.bpaynum=bp.bpaynum
+				order by borderdate desc)aa
+   			 )aaa
+  		 <![CDATA[where rnum>=1 and rnum<=2]]>
+	</select>
+	
+	<select id="recentqna" parameterType="int" resultType="qnahistory">
+		select aa.* from
+			(
+			select a.*,rownum rnum from 
+			(
+				select * from qna where mnum=#{mnum}
+				order by qnadate desc
+				) a
+			)aa
+			<![CDATA[where rnum>=1 and rnum<=2]]>
+	</select>
+</mapper>

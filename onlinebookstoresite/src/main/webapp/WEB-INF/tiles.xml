@@ -1,0 +1,425 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN" 
+"http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+
+<tiles-definitions>
+	<definition name=".adminmain"
+		template="/WEB-INF/views/admin/home.jsp">
+		<put-attribute name="header"
+			value="/WEB-INF/views/admin/header.jsp" />
+		<put-attribute name="content"
+			value="/WEB-INF/views/admin/content.jsp" />
+		<put-attribute name="sidemanu"
+			value="/WEB-INF/views/admin/sidemanu.jsp" />
+		<put-attribute name="footer"
+			value="/WEB-INF/views/admin/footer.jsp" />
+	</definition>
+
+	<!-- books -->
+	<definition name=".booksInsert" extends=".adminmain">
+		<put-attribute name="content"
+			value="/WEB-INF/views/admin/chloe/books/booksInsert.jsp" />
+	</definition>
+
+	<definition name=".booksList" extends=".adminmain">
+		<put-attribute name="content"
+			value="/WEB-INF/views/admin/chloe/books/booksList.jsp" />
+	</definition>
+
+	<definition name=".booksPreview" extends=".adminmain">
+		<put-attribute name="content"
+			value="/WEB-INF/views/admin/chloe/books/booksPreview.jsp" />
+	</definition>
+
+	<definition name=".booksUpdate" extends=".adminmain">
+		<put-attribute name="content"
+			value="/WEB-INF/views/admin/chloe/books/booksUpdate.jsp" />
+	</definition>
+
+	<!-- members -->
+	<definition name=".membersList" extends=".adminmain">
+		<put-attribute name="content"
+			value="/WEB-INF/views/admin/chloe/members/membersList.jsp" />
+	</definition>
+
+	<definition name=".ghostList" extends=".adminmain">
+		<put-attribute name="content"
+			value="/WEB-INF/views/admin/chloe/members/ghostList.jsp" />
+	</definition>
+
+	<definition name=".memInfo" extends=".adminmain">
+		<put-attribute name="content"
+			value="/WEB-INF/views/admin/chloe/members/memInfo.jsp" />
+	</definition>
+	
+	<definition name=".ghostInfo" extends=".adminmain">
+		<put-attribute name="content"
+			value="/WEB-INF/views/admin/chloe/members/ghostInfo.jsp" />
+	</definition>
+
+	<definition name=".join" extends=".main">
+		<put-attribute name="content"
+			value="/WEB-INF/views/admin/chloe/members/join.jsp" />
+	</definition>
+
+	<!-- qna -->
+	<definition name=".unAnswerList" extends=".adminmain">
+		<put-attribute name="content"
+			value="/WEB-INF/views/admin/chloe/qna/unAnswerList.jsp" />
+	</definition>
+
+	<definition name=".answerList" extends=".adminmain">
+		<put-attribute name="content"
+			value="/WEB-INF/views/admin/chloe/qna/answerList.jsp" />
+	</definition>
+
+	<definition name=".unAnswerDetail" extends=".adminmain">
+		<put-attribute name="content"
+			value="/WEB-INF/views/admin/chloe/qna/unAnswerDetail.jsp" />
+	</definition>
+
+	<definition name=".answerDetail" extends=".adminmain">
+		<put-attribute name="content"
+			value="/WEB-INF/views/admin/chloe/qna/answerDetail.jsp" />
+	</definition>
+
+	<!-- 주문관리 -->
+	<definition name=".admin.order"
+		template="/WEB-INF/views/admin/yr/order/orderlayout.jsp">
+		<put-attribute name="ordersearch"
+			value="/WEB-INF/views/admin/yr/order/totalOrder.jsp" />
+		<put-attribute name="ordertables"
+			value="/WEB-INF/views/admin/yr/order/tables.jsp" />
+	</definition>
+
+
+	<definition name=".totalOrder" extends=".adminmain">
+		<put-attribute name="content" value=".admin.order" />
+		<put-attribute name="tables"
+			value="/WEB-INF/views/admin/yr/tables.jsp" />
+	</definition>
+
+
+	<!-- 배송관리(입금상태) -->
+	<definition name=".admin.ship"
+		template="/WEB-INF/views/admin/yr/ship/shiplayout.jsp">
+		<put-attribute name="shipStatus"
+			value="/WEB-INF/views/admin/yr/ship/shipStatus.jsp" />
+		<put-attribute name="shipsearch"
+			value="/WEB-INF/views/admin/yr/ship/shipsearch.jsp" />
+		<put-attribute name="shiptables" value="" />
+	</definition>
+
+	<!-- 입금전 -->
+	<definition name=".admin.beforeDeposit"
+		extends=".admin.ship">
+		<put-attribute name="shiptables"
+			value="/WEB-INF/views/admin/yr/ship/UsedBookAndNewBookTab.jsp" />
+	</definition>
+
+	<!-- 배송 준비중 -->
+	<definition name=".admin.preparingShip"
+		extends=".admin.ship">
+		<put-attribute name="shiptables"
+			value="/WEB-INF/views/admin/yr/ship/UsedBookAndNewBookTab.jsp" />
+	</definition>
+
+	<!-- 배송 중, 배송완료 -->
+	<definition name=".admin.shipInfo" extends=".admin.ship">
+		<put-attribute name="shiptables"
+			value="/WEB-INF/views/admin/yr/ship/UsedBookAndNewBookTab.jsp" />
+	</definition>
+
+
+	<definition name=".ship.*" extends=".adminmain">
+		<put-attribute name="content" value=".admin.{1}" />
+	</definition>
+
+
+	<!-- cs관리 -->
+	<definition name=".admin.cs"
+		template="/WEB-INF/views/admin/yr/cs/cslayout.jsp">
+		<put-attribute name="csStatus"
+			value="/WEB-INF/views/admin/yr/cs/csStatus.jsp" />
+		<put-attribute name="cssearch"
+			value="/WEB-INF/views/admin/yr/cs/cssearch.jsp" />
+		<put-attribute name="cstables"
+			value="/WEB-INF/views/admin/yr/cs/cstables.jsp" />
+	</definition>
+
+	<!-- 취소 -->
+	<definition name=".admin.cancel" extends=".admin.cs">
+		<put-attribute name="cstables"
+			value="/WEB-INF/views/admin/yr/cs/allCancelListTable.jsp" />
+	</definition>
+	<!-- 반품 -->
+	<definition name=".admin.return" extends=".admin.cs">
+		<put-attribute name="cstables"
+			value="/WEB-INF/views/admin/yr/cs/returnTable.jsp" />
+	</definition>
+	<!-- 교환 -->
+	<definition name=".admin.exchange" extends=".admin.cs">
+		<put-attribute name="cstables"
+			value="/WEB-INF/views/admin/yr/cs/exchangeTable.jsp" />
+	</definition>
+	<!-- 환불 -->
+	<definition name=".admin.refund" extends=".admin.cs">
+		<put-attribute name="cstables"
+			value="/WEB-INF/views/admin/yr/cs/refundTabTable.jsp" />
+	</definition>
+
+	<definition name=".cs.*" extends=".adminmain">
+		<put-attribute name="content" value=".admin.{1}" />
+	</definition>
+
+	<!-- 중고판매자 정산 -->
+	<definition name=".admin.seller"
+		template="/WEB-INF/views/admin/yr/usedbookseller/sellerlayout.jsp">
+		<put-attribute name="sellersearch"
+			value="/WEB-INF/views/admin/yr/usedbookseller/sellersearch.jsp" />
+		<put-attribute name="sellertables"
+			value="/WEB-INF/views/admin/yr/usedbookseller/sellertables.jsp" />
+	</definition>
+
+	<definition name=".usedbookseller" extends=".adminmain">
+		<put-attribute name="content" value=".admin.seller" />
+	</definition>
+
+	<!-- 매출관리 -->
+
+	<definition name=".sales" extends=".adminmain">
+		<put-attribute name="content"
+			value="/WEB-INF/views/admin/yr/sales/chart.jsp" />
+	</definition>
+
+	<!-- 중고책 매출관리 -->
+	<definition name=".usedbooksales" extends=".adminmain">
+		<put-attribute name="content"
+			value="/WEB-INF/views/admin/yr/sales/usedbookchart.jsp" />
+	</definition>
+
+
+	<!-- ///////////////////////지호/////////////////////////////// -->
+	<!-- 중고판매자 등록 안했을 경우 인증관련 -->
+	<definition name=".seller.certified" extends=".main">
+		<put-attribute name="content" value="/WEB-INF/views/jiho/sellerEmail/sellerEmail.jsp"/>
+	</definition>
+	<definition name=".seller.emailInjeung" extends=".main">
+		<put-attribute name="content" value="/WEB-INF/views/jiho/sellerEmail/sellerEmailCk.jsp"/>
+	</definition>
+	<!-- 중고판매자 tiles설정-->
+	<definition name=".seller" template="/WEB-INF/views/jiho/sellerLayout.jsp">
+		<put-attribute name="sellerHeader" value="/WEB-INF/views/jiho/sellerHeader.jsp"/>
+		<put-attribute name="sellerContent" value="/WEB-INF/views/jiho/sellerContent.jsp"/>
+		<put-attribute name="sellerFooter" value="/WEB-INF/views/heedo/main/footer.jsp"/>
+	</definition>
+	<!-- 중고 상품등록관련 -->
+	<definition name=".seller.product" extends=".seller">
+		<put-attribute name="sellerContent" value="/WEB-INF/views/jiho/regProct/sellerInputProct.jsp"/>
+	</definition>
+	<definition name=".seller.insertok" extends=".seller">
+		<put-attribute name="sellerContent" value="/WEB-INF/views/jiho/regProct/sellerInsertOk.jsp"/>
+	</definition>
+	<definition name=".seller.insertfail" extends=".seller">
+		<put-attribute name="sellerContent" value="/WEB-INF/views/jiho/regProct/sellerInsertFail.jsp"/>
+	</definition>
+	<!-- 중고 상품 조회 관련 -->
+	<definition name=".seller.prodLook" extends=".seller">
+	 	<put-attribute name="sellerContent" value="/WEB-INF/views/jiho/lookProd/sellerProdLook.jsp"/>
+	</definition>
+	<!-- 중고상품 수정관련 -->
+	<definition name=".seller.prodUpdateView" extends=".seller">
+		<put-attribute name="sellerContent" value="/WEB-INF/views/jiho/lookProd/sellerProdUpdateView.jsp"/>
+	</definition>
+	<!-- 중고상품 판매관리 메뉴 관련 -->
+	<definition name=".seller.salesManagement" extends=".seller">
+		<put-attribute name="sellerContent" value="/WEB-INF/views/jiho/salesManagement/sellerSalesManagement.jsp"/>
+	</definition>
+	<!-- 중고상품 정산조회 관리 메뉴관련 -->
+	<definition name=".seller.settlementCheck" extends=".seller">
+		<put-attribute name="sellerContent" value="/WEB-INF/views/jiho/settlementCheck/sellerSettlementCheck.jsp"/>
+	</definition>
+	<!-- 중고상품 게시판(QnA/리뷰) 관련 -->
+	<definition name=".seller.qna" extends=".seller">
+		<put-attribute name="sellerContent" value="/WEB-INF/views/jiho/sellerBoard/sellerQna.jsp"/>
+	</definition>
+	<definition name=".seller.qnadetail" extends=".seller">
+		<put-attribute name="sellerContent" value="/WEB-INF/views/jiho/sellerBoard/sellerQnaDetail.jsp"/>
+	</definition>
+	<definition name=".seller.qnaupdate" extends=".seller">
+		<put-attribute name="sellerContent" value="/WEB-INF/views/jiho/sellerBoard/sellerQnaUpdate.jsp"/>
+	</definition>
+	<!-- 중고상품 게시판(리뷰) 관련 -->
+	<definition name=".seller.review" extends=".seller">
+		<put-attribute name="sellerContent" value="/WEB-INF/views/jiho/sellerBoard/sellerReview.jsp"/>
+	</definition>
+	<!-- 회원 포인트 조회 관련 -->
+	<definition name=".point" extends=".mypage">
+		<put-attribute name="content_body" value="/WEB-INF/views/jiho/point/members_point.jsp"/>
+	</definition>
+	
+	<!-- ////////////////////////////////////////////////////////////////////////// -->
+	
+	<!-- /////////////////////희도//////////////////////////////ㄴ -->
+	<!-- 홈화면 -->
+	<definition name=".main" template="/WEB-INF/views/heedo/layout/mainlayout.jsp">
+		<put-attribute name="header" value="/WEB-INF/views/heedo/main/header.jsp"/>
+		<put-attribute name="content" value="/WEB-INF/views/heedo/main/content.jsp"/>
+		<put-attribute name="footer" value="/WEB-INF/views/heedo/main/footer.jsp"/>
+	</definition>
+	
+	<!-- 마이페이지  -->
+	<definition name=".mypage" template="/WEB-INF/views/heedo/layout/mypagelayout.jsp">
+		<put-attribute name="header" value="/WEB-INF/views/heedo/main/header.jsp"/>
+		<put-attribute name="content_header" value="/WEB-INF/views/heedo/mypage/content_header/mypage_main.jsp"/>
+		<put-attribute name="menu" value="/WEB-INF/views/heedo/mypage/menu.jsp"/>
+		<put-attribute name="content_body" value="/WEB-INF/views/heedo/mypage/content_body/body_main.jsp"/>
+		<put-attribute name="footer" value="/WEB-INF/views/heedo/main/footer.jsp"/>
+	</definition>
+	
+	<definition name=".orderhistory" extends=".mypage">
+		<put-attribute name="content_body" value="/WEB-INF/views/heedo/mypage/content_body/orderhistory.jsp"/>
+	</definition>
+	
+	<definition name=".orderdetail" extends=".mypage">
+		<put-attribute name="content_body" value="/WEB-INF/views/heedo/mypage/content_body/orderdetail.jsp"/>
+	</definition>
+	
+	<definition name=".usedorderdetail" extends=".mypage">
+		<put-attribute name="content_body" value="/WEB-INF/views/heedo/mypage/content_body/usedorderdetail.jsp"/>
+	</definition>
+	
+	<definition name=".cancelhistory" extends=".mypage">
+		<put-attribute name="content_body" value="/WEB-INF/views/heedo/mypage/content_body/cancelhistory.jsp"/>
+	</definition>
+	
+	<definition name=".returnhistory" extends=".mypage">
+		<put-attribute name="content_body" value="/WEB-INF/views/heedo/mypage/content_body/returnhistory.jsp"/>
+	</definition>
+	
+	
+	<definition name=".qnahistory" extends=".mypage">
+		<put-attribute name="content_body" value="/WEB-INF/views/heedo/mypage/content_body/qna.jsp"/>
+	</definition>
+	
+	<definition name=".qnadetail" extends=".mypage">
+		<put-attribute name="content_body" value="/WEB-INF/views/heedo/mypage/content_body/qnadetail.jsp"/>
+	</definition>
+	
+	<definition name=".depositpage" extends=".mypage">
+		<put-attribute name="content_body" value="/WEB-INF/views/heedo/mypage/content_body/deposithistory.jsp"/>
+	</definition>
+	
+	<definition name=".accountPage" extends=".mypage">
+		<put-attribute name="content_body" value="/WEB-INF/views/heedo/mypage/content_body/accounthistory.jsp"/>
+	</definition>
+	
+	<definition name=".memberleave" extends=".mypage">
+		<put-attribute name="content_body" value="/WEB-INF/views/heedo/mypage/content_body/memberleave.jsp"/>
+	</definition>
+	
+	<definition name=".memberinfo" extends=".mypage">
+		<put-attribute name="content_body" value="/WEB-INF/views/heedo/mypage/content_body/memberinfo.jsp"/>
+	</definition>
+	
+	
+	<!-- 장바구니. -->
+	<definition name=".cart" template="/WEB-INF/views/heedo/layout/buylayout.jsp">
+		<put-attribute name="header" value="/WEB-INF/views/heedo/main/header.jsp"/>
+		<put-attribute name="content_header" value="/WEB-INF/views/heedo/buy/content_header/content_header_cart.jsp"/>
+		<put-attribute name="content_body" value="/WEB-INF/views/heedo/buy/content_body/content_body_cart.jsp"/>
+		<put-attribute name="footer" value="/WEB-INF/views/heedo/main/footer.jsp"/>
+	</definition>
+	<!-- 주문페이지. -->
+	<definition name=".order" extends=".cart">
+		<put-attribute name="content_header" value="/WEB-INF/views/heedo/buy/content_header/content_header_order.jsp"/>
+		<put-attribute name="content_body" value="/WEB-INF/views/heedo/buy/content_body/content_body_order.jsp"/>
+	</definition>
+	
+	<definition name=".usedorder" extends=".order">
+		<put-attribute name="content_body" value="/WEB-INF/views/heedo/buy/content_body/content_body_usedorder.jsp"/>
+	</definition>
+	
+	<definition name=".complete" extends=".cart">
+		<put-attribute name="content_header" value="/WEB-INF/views/heedo/buy/content_header/content_header_complete.jsp"/>
+		<put-attribute name="content_body" value="/WEB-INF/views/heedo/buy/content_body/content_body_ordercomplete.jsp"/>
+	</definition>
+	
+	<!-- ///////////////////////////////////////////////////////////////////// -->
+	
+	<!-- //////////////////////지민//////////////////////////////////////////// -->
+	<definition name=".list1" extends=".main">
+		<put-attribute name="content" value="/WEB-INF/views/jimin/cate1.jsp"/>
+	</definition>
+	<definition name=".list2" extends=".main">
+		<put-attribute name="content" value="/WEB-INF/views/jimin/cate2.jsp"/>
+	</definition>
+	<definition name=".newlist" extends=".main">
+		<put-attribute name="content" value="/WEB-INF/views/jimin/newlist.jsp"/>
+	</definition>
+	<definition name=".cnovel" extends=".main">
+		<put-attribute name="content" value="/WEB-INF/views/jimin/catenovel.jsp"/>
+	</definition>
+	<definition name=".cpoetry" extends=".main">
+		<put-attribute name="content" value="/WEB-INF/views/jimin/catepoetry.jsp"/>
+	</definition>
+	<definition name=".chuman" extends=".main">
+		<put-attribute name="content" value="/WEB-INF/views/jimin/catehuman.jsp"/>
+	</definition>
+	<definition name=".ceconomy" extends=".main">
+		<put-attribute name="content" value="/WEB-INF/views/jimin/cateeconomy.jsp"/>
+	</definition>
+	<definition name=".cselfdev" extends=".main">
+		<put-attribute name="content" value="/WEB-INF/views/jimin/cateselfdev.jsp"/>
+	</definition>
+	<definition name=".chistory" extends=".main">
+		<put-attribute name="content" value="/WEB-INF/views/jimin/catehistory.jsp"/>
+	</definition>
+	<definition name=".cjob" extends=".main">
+		<put-attribute name="content" value="/WEB-INF/views/jimin/catejob.jsp"/>
+	</definition>
+	<definition name=".ctravel" extends=".main">
+		<put-attribute name="content" value="/WEB-INF/views/jimin/catetravel.jsp"/>
+	</definition>
+	<definition name=".cit" extends=".main">
+		<put-attribute name="content" value="/WEB-INF/views/jimin/cateit.jsp"/>
+	</definition>
+	<definition name=".ccartoon" extends=".main">
+		<put-attribute name="content" value="/WEB-INF/views/jimin/catecartoon.jsp"/>
+	</definition>
+	<definition name=".cguitar" extends=".main">
+		<put-attribute name="content" value="/WEB-INF/views/jimin/categuitar.jsp"/>
+	</definition>
+	
+	
+	<definition name=".sclist" extends=".main">
+		<put-attribute name="content" value="/WEB-INF/views/jimin/sclist.jsp"/>
+	</definition>
+	
+	<definition name=".bdetail" extends=".main">
+		<put-attribute name="content" value="/WEB-INF/views/jimin/bookdetail.jsp"/>
+	</definition>
+	
+	<!-- =============중고================== -->
+	<definition name=".oldallbook" extends=".main">
+		<put-attribute name="content" value="/WEB-INF/views/jimin/OLDBOOK/oldall.jsp"/>	
+	</definition>
+	
+	<definition name=".oldsclist" extends=".main">
+		<put-attribute name="content" value="/WEB-INF/views/jimin/OLDBOOK/oldsclist.jsp"/>
+	</definition>
+	
+	<definition name=".obdetail" extends=".main">
+		<put-attribute name="content" value="/WEB-INF/views/jimin/OLDBOOK/olddetail.jsp"/>
+	</definition>
+	
+	
+	<definition name=".*.*.*" extends=".main">		
+		<put-attribute name="content" value="/WEB-INF/views/jimin/{1}/{2}/{3}.jsp"/>				
+	</definition>
+	<definition name=".*.*" extends=".main">		
+		<put-attribute name="content" value="/WEB-INF/views/jimin/{1}/{2}.jsp"/>				
+	</definition>
+	
+</tiles-definitions>
+

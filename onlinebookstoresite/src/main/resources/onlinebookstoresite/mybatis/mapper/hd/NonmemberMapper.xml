@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mybatis.mapper.NonmemberMapper">
+	<select id="confirmbpayment" parameterType="hashmap" resultType="int">
+		select NVL(count(*),0) from bpayment where mnum=0 and bpaynum=#{bpaynum} and bphone=#{phone} 
+	</select>
+	
+	<select id="nomenOrder" parameterType="hashmap" resultType="hashmap">
+		select btype,bstatus from
+		(select * from bpayment where mnum=0 and bpaynum=#{bpaynum} and bphone=#{phone})bp,
+		(select max(btype) btype,bpaynum from paymentbook group by bpaynum)pb
+		where pb.bpaynum=bp.bpaynum
+	</select>
+</mapper>

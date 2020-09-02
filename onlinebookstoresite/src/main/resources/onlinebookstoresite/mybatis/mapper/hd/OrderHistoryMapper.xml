@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mybatis.mapper.OrderHistoryMapper">
+	<select id="orderhistory" parameterType="hashmap" resultType="historyVo">
+		select * from(
+		SELECT aa.*,rownum rnum FROM (
+		select bpayment.bpaynum ordernum,borderdate,bfinalmoney,delfee,bstatus,mname,receiver,btype from
+		(select TO_DATE(borderdate,'YY/MM/DD') borderdate,bpaynum,bfinalmoney,delfee,bstatus,receiver,mnum from bpayment where mnum=#{mnum} and 
+		<![CDATA[TO_CHAR(BORDERDATE,'YY/MM/DD') >= TO_CHAR(TO_DATE(#{startDay},'YY/MM/DD'),'YY/MM/DD') AND TO_CHAR(BORDERDATE,'YY/MM/DD')<= TO_CHAR(TO_DATE(#{endDay},'YY/MM/DD'),'YY/MM/DD')]]>
+		and 
+			<choose>
+			<when test="value=='all'">
+				<![CDATA[bstatus>=0 and bstatus<=3]]>
+			</when>
+			<when test="value=='order'">
+				bstatus=0
+			</when>
+			<when test="value=='complepayment'">
+				bstatus=1
+			</when>
+			<when test="value=='ship'">
+				bstatus=2
+			</when>
+			<otherwise>
+				bstatus=3
+			</otherwise>
+		</choose>
+		)bpayment,			
+		(select * from members)members,
+		 (select bpaynum,max(btype) btype from 
+            paymentbook 
+            group by bpaynum 
+            having max(btype)=
+            <choose>
+	        	<when test="separate=='new'">
+	        	1
+	        	</when>
+	        	<otherwise>
+	        	2
+	        	</otherwise>
+        	</choose>
+            )pb
+		where members.mnum=bpayment.mnum and pb.bpaynum=bpayment.bpaynum
+		order by borderdate desc
+		) aa
+		)
+		<![CDATA[where rnum>=#{startRow} and rnum<=#{endRow}]]>
+	</select>
+	<select id="countHistory" parameterType="hashmap" resultType="int">
+		select NVL(count(*),0) from
+		(select TO_DATE(borderdate,'YY/MM/DD') borderdate,bpaynum,bfinalmoney,delfee,bstatus,receiver,mnum from bpayment where mnum=#{mnum} and 
+		<![CDATA[TO_CHAR(BORDERDATE,'YY/MM/DD') >= TO_CHAR(TO_DATE(#{startDay},'YY/MM/DD'),'YY/MM/DD') 
+			AND TO_CHAR(BORDERDATE,'YY/MM/DD')<= TO_CHAR(TO_DATE(#{endDay},'YY/MM/DD'),'YY/MM/DD')]]>
+		and	
+		<choose>
+			<when test="value=='all'">
+				<![CDATA[bstatus>=0 and bstatus<=3]]>
+			</when>
+			<when test="value=='order'">
+				bstatus=0
+			</when>
+			<when test="value=='complepayment'">
+				bstatus=1
+			</when>
+			<when test="value=='ship'">
+				bstatus=2
+			</when>
+			<otherwise>
+				bstatus=3
+			</otherwise>
+		</choose>
+		)bpayment,						
+		(select * from members)members,
+		(select bpaynum,max(btype)  from 
+        paymentbook 
+        group by bpaynum 
+        having max(btype)=
+        <choose>
+        	<when test="separate=='new'">
+        	1
+        	</when>
+        	<otherwise>
+        	2
+        	</otherwise>
+        </choose>
+        )pb
+		where members.mnum=bpayment.mnum and bpayment.bpaynum=pb.bpaynum
+	</select>
+	<select id="confirmtype" parameterType="int" resultType="hashmap">
+		select btype,bnum from paymentbook where bpaynum=#{bpaynum} and rownum=1
+	</select>
+	
+	<select id="countPaymentBook" parameterType="int" resultType="int">
+		select count(*) from paymentbook where bpaynum=#{bpaynum}
+	</select>
+	
+	<select id="newBtitle" parameterType="int" resultType="string">
+		select btitle from books where bnum=#{bnum}
+	</select>
+	
+	<select id="usedTitle" parameterType="int" resultType="hashmap">
+		select obname,obstatus from oldbooks where obnum=#{bnum}
+	</select>
+	
+
+	
+	<!--====== 주문내역 에서 상세주문내역 클릭시 ====== -->
+	<select id="orderbooklist" parameterType="int" resultType="historybooklist">
+		select pb.bpaynum,pb.bnum,pb.point,pb.bcount,books.bprice,btitle,paymentbook_num pbnum from 
+		(select * from paymentbook where bpaynum=#{bpaynum})pb,
+		(select bprice,bnum,btitle from books )books
+		where books.bnum=pb.bnum
+	</select>
+	
+	<select id="orderusedlist" parameterType="int" resultType="historybooklist">
+		select pb.bpaynum,pb.bnum,pb.bcount,obs.obsaleprice bprice,obname btitle,paymentbook_num pbnum,obstatus,m.mid sid from
+		(select * from paymentbook where bpaynum=#{bpaynum})pb,
+		(select obsaleprice,obnum,obname,obstatus,snum from oldbooks)obs,
+		(select * from obseller)ob,
+		(select * from members)m
+		where pb.bnum=obs.obnum and obs.snum=ob.snum and ob.mnum=m.mnum
+		
+	</select>
+	
+	
+	<select id="orderinfo" parameterType="int" resultType="orderdetailinfo">
+			select bp.bpaynum,bp.borderdate,mid,mname,receiver,bphone,baddr,delfee,bfinalmoney,methodpayment,usedpoint,bpaydate,bstatus from
+			(select * from bpayment where bpaynum=#{bpaynum})bp,
+			(select * from members)m
+			where bp.mnum=m.mnum
+	</select>
+	
+	<select id="vbank_info" parameterType="int" resultType="vbankVo">
+		select * from vbank where bpaynum=#{bpaynum}
+	</select>
+</mapper>

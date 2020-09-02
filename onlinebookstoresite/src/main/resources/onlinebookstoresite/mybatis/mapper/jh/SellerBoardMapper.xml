@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jhta.mybatis.mapper.SellerBoardMapper.jh">
+	<!-- 중고판매자 QnA관련  -->
+	<!-- 검색조건-->
+	<sql id="search">
+		<if test="obqstatus == 0">
+			and oq.obqstatus=0
+		</if>
+		<if test="obqstatus == 1">
+			and oq.obqstatus=1
+		</if>
+		<if test="startDay!=null and startDay!=''">
+			<![CDATA[
+				and oq.obqdate >= to_date(#{startDay},'yyyy-mm-dd') and oq.obqdate <= to_date(#{endDay},'yyyy_mm_dd')+0.99999
+			]]>
+		</if>
+		<if test='field=="all" and keyword != null and keyword !=""'>
+			and oq.obqtitle like '%'||#{keyword}||'%'
+			or m.mid like '%'||#{keyword}||'%'
+		</if>
+		<if test='field == "obqtitle"'>
+			and oq.obqtitle like '%'||#{keyword}||'%'
+		</if>
+		<if test='field == "mid"'>
+			and m.mid like '%'||#{keyword}||'%'
+		</if>
+	</sql> 
+	<!-- 중고판매자 QnA리스트 가져오기 -->
+	<select id="getSellerQnaList" resultType="qnalistjoin" parameterType="hashmap">
+		select OBNAME,OBQTITLE,OBQCONTENT,MID,OBQSTATUS,OBQDATE,OBNUM,OBQNUM,MNUM
+		from(
+  			select qna.*,ROWNUM rnum
+    		from(
+	        select o.obname OBNAME, oq.obqtitle OBQTITLE, oq.obqcontent OBQCONTENT, m.mid MID, oq.obqstatus OBQSTATUS,
+			oq.obqdate OBQDATE,o.obnum OBNUM,oq.obqnum OBQNUM,m.mnum MNUM
+			from oldbooks o,obqna oq, members m
+			where o.obnum=oq.obnum and oq.mnum=m.mnum and o.snum=#{snum}
+			<include refid="search"/>
+       		order by oq.obqdate desc)qna)a
+        <![CDATA[
+		where rnum>=#{startRow} and rnum<=#{endRow}
+		]]>
+	</select>
+	<!-- 중고판매자 QnA총 글갯수 가져오기 -->
+	<select id="getSellerQnaCount" resultType="int" parameterType="hashmap">
+		select NVL(count(*),0) count
+		from oldbooks o,obqna oq, members m
+		where o.obnum=oq.obnum and oq.mnum=m.mnum and o.snum=#{snum}
+		<include refid="search"/>
+	</select>
+	<!-- 중고판매자 디테일:문의내용 가져오기 -->
+	<select id="getSellerQnaDetail" resultType="qnalistjoin" parameterType="int">
+		select o.obname OBNAME, oq.obqtitle OBQTITLE,oq.obqcontent OBQCONTENT ,m.mid MID, 
+		oq.obqstatus OBQSTATUS,oq.obqdate OBQDATE,o.obnum OBNUM,oq.obqnum OBQNUM,m.mnum MNUM
+		from oldbooks o,obqna oq, members m
+		where o.obnum=oq.obnum and oq.mnum=m.mnum and oq.obqnum=#{obqnum}
+	</select>
+	
+	<!-- 중고판매자 디테일:Qna답변 가져오기 -->
+	<select id="getSellerAnswerList" resultType="obqanswer" parameterType="int">
+		select * from obqanswer where obqnum=#{obqnum}
+	</select>
+	
+	<!-- 중고판매자 디테일:상품 썸네일 이미지 가져오기 -->
+	<select id="getQnaDetailImg" resultType="img" parameterType="int">
+		select * from img where bnum=#{bnum} and thumbnail=1 and btype=2
+	</select>
+	<!-- 문의사항 답변하기 -->
+	<insert id="insertObqanswer" parameterType="hashmap">
+		insert into obqanswer VALUES(#{obqnum},#{snum},#{obqacontent},sysdate)
+	</insert>
+	<!-- 문의리스트 상태 업데이트 -->
+	<update id="updateQnastatus" parameterType="hashmap">
+		update obqna set obqstatus=1 where obqnum=#{obqnum}
+	</update>
+	<!-- 중고판매자 문의사항 답변 수정하기 -->
+	<update id="updateObqanswer" parameterType="hashmap">
+		update obqanswer set obqacontent=#{obqacontent} where obqnum=#{obqnum}
+	</update>
+	
+	<!-- ///////////////중고판매자 리뷰 관련/////////////// -->
+	<!-- 중고판매자 리뷰 리스트 가져오기 -->
+	<select id="getObreviewList" parameterType="hashmap" resultType="obreviewjoin">
+		select SREVIEWNUM, OBNAME, SREVIEWCONTENT, SSCORE, SREVIEWREGDATE, MID, MNUM, 
+		OBNUM, SNUM
+			from(
+	        select a.*, ROWNUM rnum from(        
+	        select re.sreviewnum SREVIEWNUM,o.obname OBNAME,re.sreviewcontent SREVIEWCONTENT, re.sscore SSCORE, 
+			re.sreviewregdate SREVIEWREGDATE,	m.mid MID, m.mnum MNUM, o.obnum OBNUM, os.snum SNUM
+			from sellerreview re,members m,oldbooks o,obseller os
+			where re.mnum=m.mnum and re.obnum=o.obnum and o.snum=os.snum and os.snum=#{snum}
+			order by re.sreviewregdate desc)a)
+			<![CDATA[
+			where rnum>=#{startRow} and rnum<=#{endRow}
+		]]>
+	</select>
+	<!-- 총 글 갯수구하기 -->
+	<select id="getObreviewCount" parameterType="hashmap" resultType="int">
+		select NVL(count(*),0) count
+		from sellerreview re,members m,oldbooks o,obseller os
+		where re.mnum=m.mnum and re.obnum=o.obnum and o.snum=os.snum and os.snum=#{snum}
+	</select>
+	<!-- 평점구하기 -->
+	<select id="getReviewAvg" parameterType="int" resultType="double">
+		select NVL(round(avg(re.sscore),1),0) avg
+		from sellerreview re,members m,oldbooks o,obseller os
+		where re.mnum=m.mnum and re.obnum=o.obnum and o.snum=os.snum and os.snum=#{snum}
+	</select>
+	
+	
+	
+	
+	
+</mapper>

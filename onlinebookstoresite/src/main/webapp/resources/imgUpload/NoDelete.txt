@@ -1,0 +1,2 @@
+삭제방지.txt
+C:\web\Spring\.metadata\.plugins\org.eclipse.wst.server.core\tmp0\wtpwebapps\onlinebookstoresite\resources\imgUpload

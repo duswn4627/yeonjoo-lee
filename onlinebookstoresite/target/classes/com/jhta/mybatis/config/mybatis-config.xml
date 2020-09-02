@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+  <!-- Vo알리아스 설정내용 -->
+<typeAliases>
+	<!-- ///지호 ////-->
+	<typeAlias type="com.jhta.finalproject.jh.vo.SellerBigcategoryVo" alias="bigcategory"/>
+	<typeAlias type="com.jhta.finalproject.jh.vo.SellerSmallcategoryVo" alias="smallcategory"/>
+	<typeAlias type="com.jhta.finalproject.jh.vo.SellerOldbooksVo" alias="oldbooks"/>
+	<typeAlias type="com.jhta.finalproject.jh.vo.SellerImgVo" alias="img"/>
+	<typeAlias type="com.jhta.finalproject.jh.vo.SellerSalesJoinVo" alias="obsalesjoin"/>
+	<typeAlias type="com.jhta.finalproject.jh.vo.SellerFeepayJoinVo" alias="obfeepayjoin"/>
+	<typeAlias type="com.jhta.finalproject.jh.vo.SellerQnaListJoinVo" alias="qnalistjoin"/>
+	<typeAlias type="com.jhta.finalproject.jh.vo.SellerObqanswerVo" alias="obqanswer"/>
+	<typeAlias type="com.jhta.finalproject.jh.vo.SellerReviewJoinVo" alias="obreviewjoin"/>
+	<typeAlias type="com.jhta.finalproject.jh.vo.MembersPointVo" alias="point"/>
+ 	<!-- /////// -->
+ 	
+ 	<!-- ////희도//// -->
+  	<typeAlias type="com.jhta.finalproject.hd.vo.HomeBestVo" alias="homebest"/>
+  	<typeAlias type="com.jhta.finalproject.hd.vo.CartListVo" alias="cartview"/>
+  	<typeAlias type="com.jhta.finalproject.hd.vo.OrderListResultVo" alias="orderVo"/>
+  	<typeAlias type="com.jhta.finalproject.hd.vo.ShipmentInfoVo" alias="shipVo"/>
+  	<typeAlias type="com.jhta.finalproject.hd.vo.UsedCartListVo" alias="usedVo"/>
+  	<typeAlias type="com.jhta.finalproject.hd.vo.UsedOrderListVo" alias="usedOrderVo"/>
+  	<typeAlias type="com.jhta.finalproject.hd.vo.OrderCompleteResultVo" alias="completeVo"/>
+  	<typeAlias type="com.jhta.finalproject.hd.vo.OrderCompleteListVo" alias="completeList"/>
+  	<typeAlias type="com.jhta.finalproject.hd.vo.OrderCompleteUsedListVo" alias="usedcompleteList"/>
+  	<typeAlias type="com.jhta.finalproject.hd.vo.VbankVo" alias="vbankVo"/>
+  	<typeAlias type="com.jhta.finalproject.hd.vo.HistoryListVo" alias="historyVo"/>
+  	<typeAlias type="com.jhta.finalproject.hd.vo.HistoryDetailBookListVo" alias="historybooklist"/>
+  	<typeAlias type="com.jhta.finalproject.hd.vo.HistoryDetailInfoVo" alias="orderdetailinfo"/>
+  	<typeAlias type="com.jhta.finalproject.hd.vo.refundBookVo" alias="BookVo"/>
+  	<typeAlias type="com.jhta.finalproject.hd.vo.HistoryUsedBook" alias="historyUsedVo"/>
+  	<typeAlias type="com.jhta.finalproject.hd.vo.QnaHistoryVo" alias="qnahistory"/>
+  	<typeAlias type="com.jhta.finalproject.hd.vo.QnaAnswerVo" alias="qnaAnswer"/>
+  	<typeAlias type="com.jhta.finalproject.hd.vo.ConfirmOldBookVo" alias="confirmold"/>
+  	<typeAlias type="com.jhta.finalproject.hd.vo.DepositHistoryVo" alias="depositHistory"/>
+  	<typeAlias type="com.jhta.finalproject.hd.vo.AccountVo" alias="AccountVo"/>
+  	<typeAlias type="com.jhta.finalproject.hd.vo.AccountHistoryVo" alias="acchistoryVo"/>
+  	<typeAlias type="com.jhta.finalproject.hd.vo.MemberinfoVo" alias="memberinfo"/>
+  	<!-- /////////// -->
+  	
+	<!-- ////지민///// -->
+		<typeAlias type="com.jhta.finalproject.jm.vo.BooksVo" alias="book"/> <!-- books라고 줄여쓰겠다. -->
+		<typeAlias type="com.jhta.finalproject.jm.vo.BigcateVo" alias="bigcate"/>
+		<typeAlias type="com.jhta.finalproject.jm.vo.SmallcateVo" alias="smallcate"/>
+		<typeAlias type="com.jhta.finalproject.jm.vo.BreviewVo" alias="breviewc"/>
+		<typeAlias type="com.jhta.finalproject.jm.vo.ReviewinsertVo" alias="reviewinsert"/>
+		<typeAlias type="com.jhta.finalproject.jm.vo.ImgVo" alias="jmimg"/>
+		<typeAlias type="com.jhta.finalproject.jm.vo.ListimgVo" alias="listimg"/>
+		<typeAlias type="com.jhta.finalproject.jm.vo.AllListVo" alias="alllist"/>
+		<typeAlias type="com.jhta.finalproject.jm.vo.CartVo" alias="cart"/>
+		<typeAlias type="com.jhta.finalproject.jm.vo.OldAllListVo" alias="oldall"/>
+		<typeAlias type="com.jhta.finalproject.jm.vo.OldCartVo" alias="oldcart"/>
+		<typeAlias type="com.jhta.finalproject.jm.vo.OldBreviewVo" alias="obreviewc"/>
+		<typeAlias type="com.jhta.finalproject.jm.vo.ObQnaInsertVo" alias="obqnainsert"/>
+	<!-- /////////////// -->
+	
+	<!-- 연주 -->
+		<!-- books -->
+		<typeAlias type="com.jhta.finalproject.yj.vo.BooksVO" alias="books" />
+		<typeAlias type="com.jhta.finalproject.yj.vo.ImgVO" alias="bookimg" />
+		<typeAlias type="com.jhta.finalproject.yj.vo.BigCategoryVO" alias="bctg" />
+		<typeAlias type="com.jhta.finalproject.yj.vo.SmallCategoryVO" alias="smctg" />
+
+		<!-- members -->
+		<typeAlias type="com.jhta.finalproject.yj.vo.MembersVO" alias="members" />
+
+		<!-- qna -->
+		<typeAlias type="com.jhta.finalproject.yj.vo.QnaVO" alias="qna" />
+		<typeAlias type="com.jhta.finalproject.yj.vo.QnaAnswerVO" alias="adminqnaAnswer" />
+		
+		<!-- 유래 -->
+		<typeAlias type="com.jhta.finalproject.yr.vo.PaymentVo" alias="payment" />
+		<typeAlias type="com.jhta.finalproject.yr.vo.PaymentBooksVo" alias="booksVo" /> 
+		<typeAlias type="com.jhta.finalproject.yr.vo.DepositVo" alias="depositVo" /> 
+		<typeAlias type="com.jhta.finalproject.yr.vo.PointVo" alias="pointVo" /> 
+		<typeAlias type="com.jhta.finalproject.yr.vo.SettlementJoinVo" alias="SettlementJoinVo" /> 
+		<typeAlias type="com.jhta.finalproject.yr.vo.MethodPaymentInfoVo" alias="MethodPaymentInfoVo" /> 
+	
+</typeAliases>
+  <mappers>
+  	<!-- ////지호///// -->
+  	<!-- 중고판매관련 -->
+    <mapper resource="onlinebookstoresite/mybatis/mapper/jh/OldbooksMapper.xml"/><!-- 중고책등록 -->
+    <mapper resource="onlinebookstoresite/mybatis/mapper/jh/SellerProdLookMapper.xml"/><!-- 중고책수정/조회/삭제관련 -->
+    <mapper resource="onlinebookstoresite/mybatis/mapper/jh/SellerMainBoardMapper.xml"/><!-- 중고메인화면 -->
+  	<mapper resource="onlinebookstoresite/mybatis/mapper/jh/SellerSalesManagementMapper.xml"/><!-- 중고판매관련 -->
+  	<mapper resource="onlinebookstoresite/mybatis/mapper/jh/SellerSettlementMapper.xml"/><!-- 중고정산조회관련 -->
+  	<mapper resource="onlinebookstoresite/mybatis/mapper/jh/SellerBoardMapper.xml"/><!-- 중고QnA/리뷰관련 -->
+  	<mapper resource="onlinebookstoresite/mybatis/mapper/jh/PointMapper.xml"/>
+  	<!-- 회원포인트 -->
+  	
+  	<!-- ////희도//// -->
+  	<mapper resource="onlinebookstoresite/mybatis/mapper/hd/HomeMapper.xml"/><!-- 홈화면 -->
+    <mapper resource="onlinebookstoresite/mybatis/mapper/hd/CartMapper.xml"/><!-- 장바구니 -->
+    <mapper resource="onlinebookstoresite/mybatis/mapper/hd/OrderMapper.xml"/><!-- 주문화면 -->
+    <mapper resource="onlinebookstoresite/mybatis/mapper/hd/MemberMapper.xml"/><!-- 회원관련(로그인,회원가입) -->
+    <mapper resource="onlinebookstoresite/mybatis/mapper/hd/OrderHistoryMapper.xml"/><!-- 주문내역,주문관련맵퍼 -->
+    <mapper resource="onlinebookstoresite/mybatis/mapper/hd/OrderManagerMapper.xml"/><!-- 주문취소/반품신청 관련맵퍼 -->
+    <mapper resource="onlinebookstoresite/mybatis/mapper/hd/MyPageMapper.xml"/>
+    <mapper resource="onlinebookstoresite/mybatis/mapper/hd/NonmemberMapper.xml"/>
+    
+    <!-- ////지민//// -->
+    <mapper resource="onlinebookstoresite/mybatis/mapper/jm/BooksMapper.xml"/>
+    <mapper resource="onlinebookstoresite/mybatis/mapper/jm/OldBooksMapper.xml"/>
+
+	<!-- 연주 -->
+	<mapper resource="com/jhta/yj/mybatis/mapper/BooksMapper.xml" />
+	<mapper resource="com/jhta/yj/mybatis/mapper/MembersMapper.xml" />
+	<mapper resource="com/jhta/yj/mybatis/mapper/QnaMapper.xml" />
+	<mapper resource="com/jhta/yj/mybatis/mapper/QnaAnswerMapper.xml" />
+
+	<!-- 유래 -->
+	<mapper resource="com/jhta/yr/mybatis/mapper/PaymentMapper.xml" />
+	<mapper resource="com/jhta/yr/mybatis/mapper/ShipMapper.xml" />
+	<mapper resource="com/jhta/yr/mybatis/mapper/CSMapper.xml" />
+	<mapper resource="com/jhta/yr/mybatis/mapper/DepositMapper.xml" />
+	<mapper resource="com/jhta/yr/mybatis/mapper/UsedBookSellerMapper.xml" />
+	<mapper resource="com/jhta/yr/mybatis/mapper/SalesMapper.xml" />
+  </mappers>
+</configuration>

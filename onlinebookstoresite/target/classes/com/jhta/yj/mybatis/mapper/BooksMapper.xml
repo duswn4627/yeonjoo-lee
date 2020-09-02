@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jhta.yj.mybatis.mapper.BooksMapper">
+	<!-- insert문 -->
+	<insert id="booksInsert" parameterType="books">
+		insert into books values
+		(SEQ_BOOKS_BNUM.nextval, #{btitle}, #{bwriter}, #{bpublishdate},
+		#{bpublisher}, #{bprice}, #{bpoint}, #{bcount},
+		#{bcontent}, 0, #{scatenum}, sysdate)
+	</insert>
+
+	<insert id="imgInsert" parameterType="bookimg">
+		insert into img
+		values(#{imgorgfilename}, SEQ_IMG_IMGNUM.nextval, #{imgsavefilename},
+		#{thumbnail}, 1, SEQ_BOOKS_BNUM.currval)
+	</insert>
+
+	<!-- delete/update문 -->
+	<delete id="booksDelete" parameterType="int">
+		delete from books where bnum = #{bnum}
+	</delete>
+	
+	<delete id="imgDelete" parameterType="int">
+		delete from img where bnum = #{bnum}
+	</delete>
+	
+	<!-- 리뷰가 달린 책을 삭제할 경우 -->
+	<delete id="bookReviewDelect" parameterType="int">
+		delete from bookreview where bnum = #{bnum} 
+	</delete>
+
+	<update id="booksUpdate" parameterType="books">
+		update books set
+		btitle = #{btitle},
+		bwriter = #{bwriter},
+		bpublishdate = #{bpublishdate},
+		bprice = #{bprice},
+		bpoint = #{bpoint},
+		bcount = #{bcount},
+		bcontent = #{bcontent},
+		scatenum = #{scatenum}
+		where bnum = #{bnum}
+	</update>
+
+	<update id="imgUpdate" parameterType="bookimg">
+		update img set
+		imgorgfilename = #{imgorgfilename},
+		imgsavefilename =
+		#{imgsavefilename}
+		where imgnum = #{imgnum}
+	</update>
+
+	<!-- select문 -->
+	<select id="getBooksInfo" resultType="books" parameterType="int">
+		select * from books where bnum = #{bnum}
+	</select>
+
+	<select id="getImgInfo" resultType="bookimg" parameterType="int">
+		select * from img where bnum = #{bnum} and btype = 1 
+	</select>
+	
+	<!-- 검색을 위한 sql -->
+	<sql id="search">
+		<if test="infoField != null and infoField != ''">
+			and ${infoField} like '%'||#{infoKeyword}||'%' 
+		</if>
+		
+		<if test="priceKeyword1 != null and priceKeyword1 != '' 
+			and priceKeyword2 != null and priceKeyword2 != ''">
+			<![CDATA[
+			and bprice <= #{priceKeyword2} and bprice >= #{priceKeyword1} 
+			]]>
+		</if>
+		
+		<if test="countKeyword1 != null and countKeyword1 != '' 
+			and countKeyword2 != null and countKeyword2 != ''">
+			<![CDATA[
+			and bcount <= #{countKeyword2} and bcount >= #{countKeyword1} 
+			]]>
+		</if>
+		
+		<if test="dateKeyword1 != null and dateKeyword1 != '' 
+			and dateKeyword2 != null and dateKeyword2 != '' ">
+			and bregdate BETWEEN TO_DATE(#{dateKeyword1}, 'YYYY/MM/DD') 
+			AND TO_DATE(#{dateKeyword2}, 'YYYY/MM/DD') + 1
+		</if>
+	</sql>
+	
+	<!-- 전체글의 개수 -->
+	<select id="count" resultType="int" parameterType="hashmap">
+		select NVL(count(*), 0) cnt from books
+		where bnum > 0
+		<include refid="search"/>
+	</select>
+
+	<select id="list" resultType="books" parameterType="hashmap">	
+		select * from 
+		(select aa.*, rownum rnum from 
+		(select * from books where bnum > 0 
+		<include refid="search"/> 
+		order by bnum desc) aa) 
+		<![CDATA[where rnum >= #{startRow} and rnum <= #{endRow}]]>
+	</select>
+
+	<!-- 카테고리 -->
+	<select id="bctg" resultType="bctg">
+		select * from bigcategory order by bcatenum
+	</select>
+
+	<select id="smctg" resultType="smctg" parameterType="int">
+		select * from smallcategory
+		where bcatenum = #{bcatenum} order by scatenum
+	</select>
+	
+	<!-- 수정을 위한 큰 카테고리 가져오기 -->
+	<select id="updateBigCtg" resultType="int" parameterType="int">
+		select s.bcatenum from smallcategory s,
+		(select * from books where bnum = #{bnum}) b
+		where s.scatenum = b.scatenum
+	</select>
+	
+	<!-- 엑셀 다운을 위한 전체 리스트 -->
+	<select id="excelList" resultType="books">
+		select aa.* from 
+		(select * from books order by bnum desc) aa
+	</select>
+</mapper>

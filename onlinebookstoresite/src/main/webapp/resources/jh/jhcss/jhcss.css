@@ -1,0 +1,204 @@
+@charset "UTF-8";
+
+* {
+	margin: 0;
+	padding: 0;
+}
+/*폰트통일*/
+*{
+	font-family: 'IBMPlexSansKR-Text'; 
+	src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-07@1.0/IBMPlexSansKR-Text.woff') format('woff'); 
+	font-weight: normal; 
+	font-style: normal; 
+}
+/*중고판매자 공통 아이콘이미지*/
+#tableicon{
+	width: 40px;
+	height: 40px;
+	margin-right: 10px;
+}
+/*중고판매자 성공/실패 페이지 css*/
+#imgok{
+	width:1300px;
+	height:900px;
+	margin: auto;
+}
+/* ////////중고판매 현황판css///// */
+#sellerContentMain {
+	width: 1150px;
+	height: 750px;
+	margin: auto;
+	background-color: #F5ECCE;
+}
+
+.sellerCard {
+	width: 600px;
+	height: 550px;
+	float: left;
+	margin-left: 280px;
+}
+
+/* ////////////////////////////중고 상품등록폼 관련 css ///////////////////////////*/
+#prodInputForm {
+	width: 1100px;
+	height: 2000px;
+	margin: auto;
+	background-color: #F2FAF4;
+}
+
+#cate {
+	width: 1100px;
+	height: 200px;
+}
+
+#cateck {
+	width: 1100px;
+	height: 200px;
+	background-color: silver;
+}
+
+#basic {
+	width: 1100px;
+	height: 500px;
+}
+
+.infotable {
+	width: 100%;
+	border: 1px;
+}
+
+#prodInputForm {
+	width: 1100px;
+	height: 2100px;
+	margin: auto;
+}
+/*카테고리css*/
+#cate {
+	width: 1100px;
+	height: 200px;
+}
+
+#cateck {
+	width: 1100px;
+	height: 50%;
+	background-color: silver;
+}
+
+.bgtd {
+	background-color: silver;
+	width: 200px;
+	height: 50px;
+}
+/*상품기본정보 css*/
+#basic {
+	width: 1100px;
+	height: 300px;
+}
+
+#infotable1 tr td input {
+	width: 500px;
+	height: 30px;
+}
+/*상품가격css*/
+#price {
+	width: 1100px;
+	height: 300px;
+}
+
+.infotd2 {
+	width: 500px;
+	height: 30px;
+}
+/*배송정보*/
+#ship {
+	width: 1100px;
+	height: 300px;
+}
+
+#infotable3 tr td input {
+	height: 30px;
+}
+
+.addr {
+	width: 400px;
+}
+
+#infotable4 tr td input {
+	width: 500px;
+	height: 30px;
+}
+
+#infotable5 tr td {
+	height: 500px;
+}
+
+#summernote {
+	height: 300px;
+}
+
+#bigbox {
+	width: 200px;
+	height: 300px;
+	float: left;
+}
+
+.selectbox {
+	width: 150px;
+	height: 25px;
+	padding-left: 20px;
+}
+#insertbt{
+	margin-left: 550px;
+}
+#updatebt{
+	margin-left: 550px;
+}
+
+/*검색버튼*/
+#list2bt {
+	margin-left: 10px;
+	margin-right: 10px;
+}
+/*=============================판매관리css=============================*/
+/*메뉴1 입금대기중*/
+/*입금대기중 css*/
+#detail1 {
+	height: 1000px;
+}
+.toptr {
+	text-align: center;
+}
+
+#detail1 table .toptr {
+	height: 30px;
+	background-color: silver;
+}
+
+#searchBox1 {
+	width: 1200px;
+	height: 200px;
+}
+
+input[name='borderdate1'] {
+	margin-left: 20px;
+	margin-right: 10px;
+}
+
+input[name='keyword1'] {
+	margin-left: 20px;
+	width: 400px;
+	display: inline;
+}
+
+#slaesListbt1 {
+	margin-left: 10px;
+	margin-right: 10px;
+}
+
+input[name='field1'] {
+	margin-right: 10px;
+	margin-left: 20px;
+}
+
+
+

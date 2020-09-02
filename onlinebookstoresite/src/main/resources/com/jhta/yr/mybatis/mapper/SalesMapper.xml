@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jhta.yr.mybatis.mapper.SalesMapper">
+	
+	<sql id="daySearch">			
+		<if test="startDate == null or startDate == '' ">
+			TRUNC(${field}) BETWEEN TO_DATE(sysdate-3) AND TO_DATE(sysdate) 
+		</if>
+		<if test="@com.jhta.finalproject.yr.mybatischeck.MybatisCheck@notEmpty(startDate)">
+			TRUNC(${field}) BETWEEN TO_DATE(#{startDate}) AND TO_DATE(#{endDate}) 
+		</if>
+	</sql>
+
+	<sql id="weekSearch">
+		<if test="week == null or week == '' ">
+			 to_char(${field},'iw') between TO_CHAR(sysdate-7, 'iw') and TO_CHAR(sysdate, 'iw')
+		</if>	
+		<if test="@com.jhta.finalproject.yr.mybatischeck.MybatisCheck@notEmpty(week)">
+			 to_char(${field},'iw') between TO_CHAR(sysdate-#{week}, 'iw') and TO_CHAR(sysdate, 'iw')
+		</if>
+	</sql>
+	
+	<sql id="monthSearch">
+		<if test="startYearAndMonth == null or startYearAndMonth== '' ">
+			 to_char(${field},'iw') between TO_CHAR(sysdate-7, 'iw') and TO_CHAR(sysdate, 'iw')
+		</if>
+		<if test="@com.jhta.finalproject.yr.mybatischeck.MybatisCheck@notEmpty(startYearAndMonth)">
+			${field} BETWEEN TO_date(#{startYearAndMonth},'yyyy-mm') AND TO_date(#{endYearAndMonth},'yyyy-mm')
+		</if>
+	</sql>
+	
+<!-- 	최근 3일 동안 결제된 금액 -->
+	<select id="getThreeday" resultType = "hashmap">
+		select  to_char(bpaydate,'yyyy-mm-dd') bpaydate, sum(bfinalmoney) from bpayment 
+		where TRUNC(bpaydate) BETWEEN TO_DATE(sysdate-2) AND TO_DATE(sysdate) group by to_char(bpaydate,'yyyy-mm-dd') order by bpaydate	</select>
+	
+	
+<!-- 	일별 리스트 가져오기 -->
+	<select id="getList" parameterType="hashmap" resultType="hashmap">
+		select  to_char(bpaydate,'yyyy-mm-dd') bpaydate, sum(bfinalmoney) from bpayment, paymentbook 
+        where bpayment.bpaynum = paymentbook.bpaynum and btype = 1 and bstatus in (3,5)
+		and <include refid="daySearch"/>
+		group by to_char(bpaydate,'yyyy-mm-dd') order by bpaydate
+	</select>
+	
+	
+<!-- 	월별 리스트 가져오기 -->
+	<select id="mothList" parameterType="hashmap" resultType="hashmap">
+		select  to_char(bpaydate,'yyyy-mm') bpaydate, sum(bfinalmoney) from bpayment, paymentbook 
+        where bpayment.bpaynum = paymentbook.bpaynum and btype = 1 and bstatus in (3,5)
+		and <include refid="monthSearch"/> 
+		group by to_char(bpaydate,'yyyy-mm') order by bpaydate	
+	</select>
+	
+<!-- 	주별 리스트 가져오기 -->
+	<select id="weekList" parameterType="hashmap" resultType="hashmap">
+		select to_char(bpaydate, 'IW') bpaydate, sum(bfinalmoney) from bpayment, paymentbook 
+        where bpayment.bpaynum = paymentbook.bpaynum and btype = 1 and bstatus in (3,5)
+		and <include refid="weekSearch"/> 
+		 group by to_char(bpaydate, 'IW') order by bpaydate
+	</select>
+	
+<!-- 	중고책 일별 리스트 가져오기 -->
+	<select id="usedbookgetList" parameterType="hashmap" resultType="hashmap">
+		select  to_char(feedate,'yyyy-mm-dd') feedate, sum(feepay) from obcomplete
+		where <include refid="daySearch"/>
+		group by to_char(feedate,'yyyy-mm-dd') order by feedate
+	</select>
+	
+<!-- 	중고책 월별 리스트 가져오기 -->
+	<select id="usedbookmothList" parameterType="hashmap" resultType="hashmap">
+		select  to_char(feedate,'yyyy-mm') feedate, sum(feepay) from obcomplete
+		where <include refid="monthSearch"/> 
+		group by to_char(feedate,'yyyy-mm') order by feedate	
+	</select>
+	
+<!-- 	중고책 주별 리스트 가져오기 -->
+	<select id="usedbookweekList" parameterType="hashmap" resultType="hashmap">
+		select to_char(feedate, 'IW') feedate, sum(feepay) from obcomplete 
+		where <include refid="weekSearch"/> 
+		 group by to_char(feedate, 'IW') order by feedate
+	</select>
+	
+<!-- 	 결제수단별 주문현황 -->
+	<select id="getThreeDayMethodpaymentInfo" resultType="MethodPaymentInfoVo">
+		select to_char(bpaydate,'yyyy-mm-dd') bpayment, sum(bfinalmoney) price, methodpayment, nvl(count(methodpayment),0) count from bpayment 
+		where TRUNC(bpaydate) BETWEEN TO_DATE(sysdate-2) AND TO_DATE(sysdate) group by to_char(bpaydate,'yyyy-mm-dd'), methodpayment	
+	</select> 
+</mapper>	

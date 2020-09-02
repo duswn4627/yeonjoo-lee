@@ -1,0 +1,125 @@
+@charset "UTF-8";
+
+*{
+	margin: 0;
+	padding: 0;
+}
+/* ////////중고판매 현황판css///// */
+	#sellerContentMain{
+		width: 1300px;
+		height: 900px;
+		border: 1px solid red;
+		margin: auto;
+	}
+	.sellerCard{
+		width: 600px;
+		height: 400px;
+		border: 1px solid black;
+		float: left;
+		margin: 20px;
+	}
+
+/* ////////////////////////////중고 상품등록폼 관련 css ///////////////////////////*/
+	#prodInputForm{
+		border: 1px solid red;
+		width: 1300px;
+		height: 2000px;
+		margin: auto;
+	}
+	#cate{
+		width: 1300px;
+		height: 200px;
+		border: 1px solid black;
+	}
+	#cateck{
+		width: 1300px;
+		height: 200px;
+		background-color: silver;
+	}
+	#basic{
+		width: 1300px;
+		height: 500px;
+		border: 1px solid yellow;
+	}
+	.infotable{
+		width: 100%;
+		border: 1px;
+	}
+	#prodInputForm{
+		border: 1px solid red;
+		width: 1300px;
+		height: 2100px;
+		margin: auto;
+	}
+	/*카테고리css*/
+	#cate{ 
+		width: 1300px;
+		height: 200px;
+		border: 1px solid black;
+	}
+	#cateck{
+		width: 1300px;
+		height: 50%;
+		background-color: silver;
+	}
+	.bgtd{
+		background-color: silver;
+		width: 200px;
+		height: 50px;
+	}
+	/*상품기본정보 css*/
+	#basic{ 
+		width: 1300px;
+		height: 300px;
+		border: 1px solid yellow;
+	}
+	#infotable1 tr td input{
+		width: 500px;
+		height: 30px;
+	}
+	/*상품가격css*/
+	#price{ 
+		width: 1300px;
+		height: 300px;
+		border: 1px solid blue;
+	}
+	.infotd2{
+		width: 500px;
+		height: 30px;
+	}
+	/*배송정보*/
+	#ship{ 
+		width: 1300px;
+		height: 300px;
+		border: 1px solid green;
+	}
+	#infotable3 tr td input{
+		height: 30px;
+	}
+	.addr{
+		width: 500px;
+	}
+	#infotable4 tr td input{
+		width: 500px;
+		height: 30px;
+	}
+	#infotable5 tr td{
+		height: 500px;
+	}
+	#summernote{
+		height: 300px;
+	}
+	#bigbox{
+		width: 200px;
+		height: 300px;
+		border: 1px solid black;
+		float: left;
+	}
+	.selectbox{
+		width: 150px;
+		height:25px;
+		padding-left: 20px;
+	}
+	#insertbt{
+		margin: auto;
+	}

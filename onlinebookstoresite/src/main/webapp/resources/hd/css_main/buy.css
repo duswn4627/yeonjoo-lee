@@ -1,0 +1,77 @@
+#logoImg{
+	width:160px;
+	height:56px;
+	display:inline-block;
+}
+.cartlistimg, .orderlistimg{
+	width:100px;
+	height:auto;
+}
+#content_cart{
+	border:2px solid grey;
+	padding:10px;
+	border-radius: 8px;
+}
+.order_core_container{
+	border:2px solid grey;
+	padding:10px;
+	border-radius: 8px;	
+}
+#newbottomBtn{
+	text-align: center;
+}
+.tableDiv{
+	margin-bottom: 20px;
+	padding:0px;
+}
+.imgTd{
+	padding:0px;
+}
+.radiotext{
+	font-size:13px;
+}
+#searchAddrBtn{
+	padding:1.5px 1.5px;
+	font-size:13px;
+	width:80px;
+	height:20px;
+}
+.textbox1{
+	font-size:13px;
+	height:20px;
+	width:100px;
+}
+.addrLoc{
+	font-size:13px;
+	width:87px;
+	height:20px;
+	display:inline-block;
+	
+}
+.road_land_textbox{
+	font-size:13px;
+	height:20px;
+	width:248.5px;
+	
+}
+#addr4, #addr5{
+	font-size:13px;
+	height:20px;
+}
+.contact_number{
+	font-size:13px;
+	height:20px;
+	width:40px;
+}
+.addrs{
+	font-size:13px;
+}
+
+.tableloc{
+	text-align:center;
+}
+.progbar {margin:16px 0 36px 0;width:960px;}
+.progbar h1 {width:300px;height:42px;text-indent:-9999em;background:url('../image/cart.png') 0 0 no-repeat;}
+.progbar .cart {}
+.progbar .pay	 {background-position:0 -100px;}
+.progbar .finish {background-position:0 -150px;}

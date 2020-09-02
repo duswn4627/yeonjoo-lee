@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jhta.yr.mybatis.mapper.PaymentMapper">
+	
+	<sql id="search">	
+<!-- 		주문번호, 주문자 -->
+		<if test="@com.jhta.finalproject.yr.mybatischeck.MybatisCheck@notEmpty(pfield)">	
+			<choose>
+				<when test="pfield == 'bpaynum'">
+					and bpayment.${pfield} like '%'||#{pkeyword}||'%'
+				</when>
+				<when test="pfield == 'mname'">
+					and members.${pfield} like '%'||#{pkeyword}||'%'
+				</when>
+			</choose>
+		</if>		
+
+<!-- 주문일, 결제일 -->
+		<if test="@com.jhta.finalproject.yr.mybatischeck.MybatisCheck@notEmpty(startDate)">
+			 and TRUNC(${tfield}) BETWEEN TO_DATE(#{startDate}) AND TO_DATE(#{endDate})
+		</if>		
+
+<!-- 		책제목, 첵 번호 -->
+		<if test="@com.jhta.finalproject.yr.mybatischeck.MybatisCheck@notEmpty(bfield)">
+			and books.${bfield} like '%'||#{bkeyword}||'%'
+		</if>
+		
+<!-- 		주문상태 -->
+		<if test="@com.jhta.finalproject.yr.mybatischeck.MybatisCheck@notEmpty(bstatus)">
+			and bstatus in
+			<foreach collection="bstatus" item="bs" open="(" close=")" separator=",">
+				<if test="bstatus != -1">
+				#{bs,jdbcType=VARCHAR}	
+				</if>
+			</foreach>
+	    </if>
+	    
+<!-- 	    cs 상태 -->
+		<if test="@com.jhta.finalproject.yr.mybatischeck.MybatisCheck@notEmpty(type)">
+			and type in
+			<foreach collection="type" item="type" open="(" close=")" separator=",">
+				<if test="type != -1">
+				#{type,jdbcType=VARCHAR}	
+				</if>
+			</foreach>
+	    </if>
+	    
+<!-- 	    입금/결제 상태 -->
+		<if test="@com.jhta.finalproject.yr.mybatischeck.MybatisCheck@notEmpty(payType)">
+			<if test="payType == 1">
+				and bstatus in (1,2,3,4)			
+			</if>
+			<if test="payType == 0">
+				and bstatus = 0			
+			</if>
+	    </if>
+	    
+	    
+<!-- 	    회원상태 -->
+		<if test="@com.jhta.finalproject.yr.mybatischeck.MybatisCheck@notEmpty(mType)">
+			<if test="mType == 2">
+				and bpayment.mnum = 0  						
+			</if>						
+			<if test="mType == 1">
+				and bpayment.mnum != 0  						
+			</if>				
+	    </if>
+
+	</sql>
+	
+	<sql id="shipStatus">
+		<if test="@com.jhta.finalproject.yr.mybatischeck.MybatisCheck@notEmpty(shipStatus)">
+			and bstatus = #{shipStatus}				
+	    </if>
+	</sql>
+	
+	<sql id="CSStatus">
+		<if test="@com.jhta.finalproject.yr.mybatischeck.MybatisCheck@notEmpty(CSStatus)">
+			and type = #{CSStatus}				
+			<if test="CSStatus == 0">
+				and bstatus = 0
+			</if>
+	    </if>		
+	</sql>
+	
+	<resultMap type="com.jhta.finalproject.yr.vo.PaymentAndBookListVo" id="paymentBooksList">
+		<result property="bpaynum" column="bpaynum"/>
+		<result property="baddr" column="baddr"/>
+		<result property="bphone" column="bphone"/>
+		<result property="bfinalmoney" column="bfinalmoney"/>
+		<result property="borderdate" column="borderdate"/>
+		<result property="bpaydate" column="bpaydate"/>
+		<result property="bstatus" column="bstatus"/>
+		<result property="ordermoney" column="ordermoney"/>
+		<result property="usedpoint" column="usedpoint"/>
+		<result property="methodpayment" column="methodpayment"/>
+		<result property="receiver" column="receiver"/>
+		<result property="delfee" column="delfee"/>
+		<result property="mnum" column="mnum"/>
+		<result property="mname" column="mname"/>
+		<collection property="paymentbook" ofType="com.jhta.finalproject.yr.vo.PaymentBooksVo">
+			<result property="bpaynum" column="bpaynum"/>
+			<result property="btype" column="btype"/>
+			<result property="bnum" column="bnum"/>
+			<result property="bcount" column="bcount"/>
+			<result property="btitle" column="btitle"/>
+			<result property="bprice" column="bprice"/>
+			<result property="type" column="type"/>
+		</collection>	
+	</resultMap>
+	
+	
+	<select id="paymentList" resultMap="paymentBooksList" parameterType="hashMap">
+  	       select * from bpayment, paymentbook, members, books, refundhistory WHERE BPAYMENT.BPAYNUM in(
+             select bpaynum from (
+                 select a.*, ROWNUM rum from    
+                    (
+                           select DISTINCT bpayment.bpaynum
+                            from bpayment, paymentbook, members, books, refundhistory 
+                            where bpayment.bpaynum = paymentbook.bpaynum
+                            and members.mnum = bpayment.mnum 
+                            and paymentbook.bnum= books.bnum
+                            and paymentbook.paymentbook_num = refundhistory.paymentbook_num(+)
+                            and btype = 1
+                            <include refid="search"/>
+						    <include refid="shipStatus"/>
+						    <include refid="CSStatus"/> 
+                    ) a
+                )  
+                <if test="@com.jhta.finalproject.yr.mybatischeck.MybatisCheck@notEmpty(startRow)">
+            		 <![CDATA[where rum >= #{startRow} and rum <= #{endRow}]]>
+            	</if>
+            )AND members.mnum = bpayment.mnum
+            and paymentbook.bpaynum = bpayment.bpaynum
+            and paymentbook.bnum= books.bnum
+            and paymentbook.paymentbook_num = refundhistory.paymentbook_num(+)
+            order by bpayment.bpaynum
+	</select>
+	
+	<select id="getTotalCount" resultType="int">
+		select count(distinct bpayment.bpaynum) total
+	    from bpayment, paymentbook, members, books, refundhistory
+	    where bpayment.bpaynum = paymentbook.bpaynum
+	    and members.mnum = bpayment.mnum
+	    and paymentbook.bnum= books.bnum
+	    and paymentbook.paymentbook_num = refundhistory.paymentbook_num(+)
+	    and btype = 1
+	    <include refid="search"/>
+	    <include refid="shipStatus"/>
+	    <include refid="CSStatus"/>
+	</select>
+
+<!-- 	중고책 -->
+	<select id="usedBookPaymentList" resultMap="paymentBooksList">
+
+	    	select bpayment.*, paymentbook.*, oldbooks.*, members.mname, oldbooks.obname btitle, refundhistory.type from bpayment, paymentbook, members, oldbooks, refundhistory WHERE BPAYMENT.BPAYNUM in(
+             select bpaynum from (
+                 select a.*, ROWNUM rum from    
+                    (
+                           select DISTINCT bpayment.bpaynum
+                            from bpayment, paymentbook, members, oldbooks, refundhistory 
+                            where bpayment.bpaynum = paymentbook.bpaynum
+                            and members.mnum = bpayment.mnum 
+                            and paymentbook.bnum= oldbooks.obnum
+                            and paymentbook.paymentbook_num = refundhistory.paymentbook_num(+)
+                            and btype = 2
+                            <include refid="search"/>
+						    <include refid="shipStatus"/>
+						    <include refid="CSStatus"/> 
+                    ) a
+                )  
+                <if test="@com.jhta.finalproject.yr.mybatischeck.MybatisCheck@notEmpty(startRow)">
+            		<![CDATA[where rum >= #{startRow} and rum <= #{endRow}]]>
+        		</if>
+            )AND members.mnum = bpayment.mnum
+            and paymentbook.bpaynum = bpayment.bpaynum
+            and paymentbook.bnum= oldbooks.obnum
+            and paymentbook.paymentbook_num = refundhistory.paymentbook_num(+)
+            order by bpayment.bpaynum
+	</select>
+	
+	<select id="getusedBookTotalCount" resultType="int">
+		select count(distinct bpayment.bpaynum) total
+	    from bpayment, paymentbook, members, oldbooks, refundhistory
+	    where bpayment.bpaynum = paymentbook.bpaynum
+	    and members.mnum = bpayment.mnum
+	    and paymentbook.bnum= oldbooks.obnum
+	    and paymentbook.paymentbook_num = refundhistory.paymentbook_num(+)
+	    and btype = 2
+	    <include refid="search"/>
+	    <include refid="shipStatus"/>
+	    <include refid="CSStatus"/>
+	</select>
+	
+<!-- 오늘 결제한 주문갯수 -->
+	<select id="getTodayPaymentCount" resultType="int">
+		select nvl(count(*), 0) from bpayment 
+		where TRUNC(BPAYDATE) BETWEEN TO_DATE(sysdate) AND TO_DATE(sysdate) 
+	</select>
+
+<!-- 오늘 주문한 주문갯수 -->
+	<select id="getTodayOrderCount" resultType="int">
+		select nvl(count(*), 0) from bpayment 
+		where TRUNC(borderdate) BETWEEN TO_DATE(sysdate) AND TO_DATE(sysdate)
+	</select>
+</mapper>
